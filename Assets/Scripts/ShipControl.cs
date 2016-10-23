@@ -67,8 +67,16 @@ public class ShipControl : MonoBehaviour {
         }
 
         // Engine Lights
-        foreach (GameObject light in engineLights) {
-            light.GetComponent<Light>().intensity = GetThrust().z * 5f;
+        if (stage == FLIGHT_STATE.STAGE_2) {
+            foreach (GameObject light in engineLights) {
+                light.GetComponent<Light>().intensity = Mathf.Lerp (light.GetComponent<Light>().intensity, 8f, 0.5f * Time.deltaTime);
+            }
+            
+        } else {
+            foreach (GameObject light in engineLights) {
+
+                light.GetComponent<Light>().intensity = GetThrust().z * 5f;
+            }
         }
     }
 
