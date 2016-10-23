@@ -9,7 +9,7 @@ public class ShipControl : MonoBehaviour {
     public float maxRotationSpeed = 20f;
     public bool flightAssist = true;
 
-    public enum FLIGHT_STATE {ASST_OFF, STAGE_1, STAGE_2};
+    public enum FLIGHT_STATE {ASST_OFF, ASTRO, QUANTUM};
     public FLIGHT_STATE stage; 
 
     private Rigidbody shipRB;
@@ -21,8 +21,8 @@ public class ShipControl : MonoBehaviour {
         shipRB = GetComponent<Rigidbody>();
         shipRB.maxAngularVelocity = maxRotationSpeed / 10f;
         gravBody = GetComponent<GravityBody>();
-        SetStage(FLIGHT_STATE.STAGE_1);
-        engineLights = GameObject.FindGameObjectsWithTag("EngineLight");
+        SetStage(FLIGHT_STATE.ASTRO);
+        engineLights = GameObject.FindGameObjectsWithTag("EngineGlow");
     }
 
     void Update() {
@@ -32,17 +32,17 @@ public class ShipControl : MonoBehaviour {
             if (flightAssist) {
                 SetStage(FLIGHT_STATE.ASST_OFF);
             } else {
-                SetStage(FLIGHT_STATE.STAGE_1);
+                SetStage(FLIGHT_STATE.ASTRO);
             }
         }
 
         if (flightAssist && Input.GetButtonDown("Flight Stage 1")) {
-            SetStage(FLIGHT_STATE.STAGE_1);
+            SetStage(FLIGHT_STATE.ASTRO);
         }
 
         if (flightAssist && Input.GetButtonDown("Flight Stage 2")) {
             if (gravBody.allowQuantumDrive) {
-                SetStage(FLIGHT_STATE.STAGE_2);
+                SetStage(FLIGHT_STATE.QUANTUM);
             }
         }
 
@@ -52,30 +52,29 @@ public class ShipControl : MonoBehaviour {
 
         // Chester is awesome!! 
 
-        if (stage == FLIGHT_STATE.STAGE_2) {
+        if (stage == FLIGHT_STATE.QUANTUM) {
             shipRB.velocity = Vector3.Slerp(shipRB.velocity, transform.forward * 1000f, 0.5f * Time.deltaTime);
         }
 
         if (flightAssist && GetThrust() == Vector3.zero) {
-            if (stage == FLIGHT_STATE.STAGE_1) {
+            if (stage == FLIGHT_STATE.ASTRO) {
                 shipRB.drag = 1f;
-            } else if (stage >= FLIGHT_STATE.STAGE_2) {
+            } else if (stage >= FLIGHT_STATE.QUANTUM) {
                 shipRB.drag = 0.1f;
             }
         } else {
             shipRB.drag = 0f;
         }
 
-        // Engine Lights
-        if (stage == FLIGHT_STATE.STAGE_2) {
+        // Engine Glow
+        if (stage == FLIGHT_STATE.QUANTUM) {
             foreach (GameObject light in engineLights) {
                 light.GetComponent<Light>().intensity = Mathf.Lerp (light.GetComponent<Light>().intensity, 8f, 0.5f * Time.deltaTime);
             }
             
         } else {
             foreach (GameObject light in engineLights) {
-
-                light.GetComponent<Light>().intensity = GetThrust().z * 5f;
+                light.GetComponent<Light>().intensity = GetThrust().z * 3f;
             }
         }
     }
@@ -106,15 +105,15 @@ public class ShipControl : MonoBehaviour {
                 enginePower = 200f;
                 break;
             }
-            case FLIGHT_STATE.STAGE_1: {
-                Debug.Log("Flight Stage 1");
+            case FLIGHT_STATE.ASTRO: {
+                Debug.Log("Astro Flight Engaged");
                 flightAssist = true;
                 maxSpeed = 50f;
                 enginePower = 200f;
                 break;
             }
-            case FLIGHT_STATE.STAGE_2: {
-                Debug.Log("Flight Stage 2");
+            case FLIGHT_STATE.QUANTUM: {
+                Debug.Log("Quantum Flight Engaged");
                 maxSpeed = 1000000f;
                 enginePower = 0f;
                 break;

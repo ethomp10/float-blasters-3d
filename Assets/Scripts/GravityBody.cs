@@ -22,8 +22,8 @@ public class GravityBody : MonoBehaviour {
             distanceToAttractor = attractors[i].GetComponent<GravityAttractor>().GetDistanceToBody(position);
             if (distanceToAttractor <= 1000f) {
                 allowQuantumDrive = false;
-                if (shipControl.stage == ShipControl.FLIGHT_STATE.STAGE_2) {
-                    shipControl.SetStage(ShipControl.FLIGHT_STATE.STAGE_1); // Emergency drop
+                if (shipControl.stage == ShipControl.FLIGHT_STATE.QUANTUM) {
+                    shipControl.SetStage(ShipControl.FLIGHT_STATE.ASTRO); // Emergency drop
                     Debug.Log("Flight Stage 1 (safety override)");
                 }
             } else {
