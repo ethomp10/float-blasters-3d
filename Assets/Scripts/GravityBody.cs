@@ -24,7 +24,7 @@ public class GravityBody : MonoBehaviour {
                 allowQuantumDrive = false;
                 if (shipControl.stage == ShipControl.FLIGHT_STATE.QUANTUM) {
                     shipControl.SetStage(ShipControl.FLIGHT_STATE.ASTRO); // Emergency drop
-                    Debug.Log("Flight Stage 1 (safety override)");
+                    Debug.Log("Too close for Astro Flight");
                 }
             } else {
                 allowQuantumDrive = true;

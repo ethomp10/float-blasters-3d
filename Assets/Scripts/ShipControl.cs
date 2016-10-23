@@ -6,6 +6,7 @@ public class ShipControl : MonoBehaviour {
     public float enginePower = 200f; // Affects net force
     public float boosterPower = 100f; // Affects net torque
     public float maxSpeed = 50f;
+    public float quantumSpeed = 2000f;
     public float maxRotationSpeed = 20f;
     public bool flightAssist = true;
 
@@ -21,7 +22,7 @@ public class ShipControl : MonoBehaviour {
         shipRB = GetComponent<Rigidbody>();
         shipRB.maxAngularVelocity = maxRotationSpeed / 10f;
         gravBody = GetComponent<GravityBody>();
-        SetStage(FLIGHT_STATE.ASTRO);
+        SetStage(FLIGHT_STATE.ASST_OFF);
         engineLights = GameObject.FindGameObjectsWithTag("EngineGlow");
     }
 
@@ -53,14 +54,14 @@ public class ShipControl : MonoBehaviour {
         // Chester is awesome!! 
 
         if (stage == FLIGHT_STATE.QUANTUM) {
-            shipRB.velocity = Vector3.Slerp(shipRB.velocity, transform.forward * 1000f, 0.5f * Time.deltaTime);
+            shipRB.velocity = Vector3.Slerp(shipRB.velocity, transform.forward * quantumSpeed, 0.5f * Time.deltaTime);
         }
 
         if (flightAssist && GetThrust() == Vector3.zero) {
             if (stage == FLIGHT_STATE.ASTRO) {
                 shipRB.drag = 1f;
             } else if (stage >= FLIGHT_STATE.QUANTUM) {
-                shipRB.drag = 0.1f;
+                shipRB.drag = 0f;
             }
         } else {
             shipRB.drag = 0f;
@@ -101,7 +102,7 @@ public class ShipControl : MonoBehaviour {
             case FLIGHT_STATE.ASST_OFF: {
                 Debug.Log("Flight Assist Off");
                 flightAssist = false;
-                maxSpeed = 1000000f;
+                maxSpeed = quantumSpeed;
                 enginePower = 200f;
                 break;
             }
@@ -114,7 +115,7 @@ public class ShipControl : MonoBehaviour {
             }
             case FLIGHT_STATE.QUANTUM: {
                 Debug.Log("Quantum Flight Engaged");
-                maxSpeed = 1000000f;
+                maxSpeed = quantumSpeed;
                 enginePower = 0f;
                 break;
             }
