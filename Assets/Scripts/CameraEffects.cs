@@ -14,17 +14,17 @@ public class CameraEffects : MonoBehaviour {
     private Vector3 ThirdPersonPos;
 
     // Use this for initialization
-    void Start () {
+    void Start() {
         cam = GetComponent<Camera>();
         camPos = GetComponent<Transform>();
         shipControl = GetComponentInParent<ShipControl>();
 
         firstPersonPos = new Vector3(0f, 1.36f, -2.81f);
         ThirdPersonPos = new Vector3(0f, 3.8f, -12.7f);
-	}
-	
-	// Update is called once per frame
-	void Update () {
+    }
+
+    // Update is called once per frame
+    void Update() {
 
         if (Input.GetButtonDown("Toggle Camera")) {
             if (firstPerson) {
