@@ -1,10 +1,12 @@
 ﻿using UnityEngine;
+using UnityEngine.UI;
 using System.Collections;
 
 public class GravityBody : MonoBehaviour {
 
     public GameObject[] attractors;
-    public bool allowQuantumDrive = false;
+    public bool allowQuantum = false;
+    public Image uiQuantumReady;
 
     private Transform position;
     private ShipControl shipControl;
@@ -21,12 +23,22 @@ public class GravityBody : MonoBehaviour {
         for (int i = 0; i < attractors.Length; i++) {
             distanceToAttractor = attractors[i].GetComponent<GravityAttractor>().GetDistanceToBody(position);
             if (distanceToAttractor <= 1000f) {
-                allowQuantumDrive = false;
+                allowQuantum = false;
                 if (shipControl.stage == ShipControl.FLIGHT_STATE.QUANTUM) {
                     shipControl.SetStage(ShipControl.FLIGHT_STATE.ASTRO); // Emergency drop
                     Debug.Log("Astro Flight engaged (saftey override)");
                 }
+                break;
+            } else {
+                allowQuantum = true;
             }
+        }
+
+        // Quantum Flight  light
+        if (allowQuantum) {
+            uiQuantumReady.color = Color.green;
+        } else {
+            uiQuantumReady.color = Color.red;
         }
     }
 

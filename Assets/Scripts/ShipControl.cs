@@ -1,4 +1,5 @@
 ﻿using UnityEngine;
+using UnityEngine.UI;
 using System.Collections;
 
 public class ShipControl : MonoBehaviour {
@@ -10,8 +11,12 @@ public class ShipControl : MonoBehaviour {
     public float maxRotationSpeed = 20f;
     public bool flightAssist = true;
 
+    public Text uiAsstOff;
+    public Text uiAstro;
+    public Text uiQuantum;
+
     public enum FLIGHT_STATE {ASST_OFF, ASTRO, QUANTUM};
-    public FLIGHT_STATE stage; 
+    public FLIGHT_STATE stage;
 
     private Rigidbody shipRB;
     private GravityBody gravBody;
@@ -19,6 +24,8 @@ public class ShipControl : MonoBehaviour {
     
     void Start() {
         Cursor.visible = false;
+
+        // Set up ship
         shipRB = GetComponent<Rigidbody>();
         shipRB.maxAngularVelocity = maxRotationSpeed / 10f;
         gravBody = GetComponent<GravityBody>();
@@ -42,7 +49,7 @@ public class ShipControl : MonoBehaviour {
         }
 
         if (flightAssist && Input.GetButtonDown("Flight Stage 2")) {
-            if (gravBody.allowQuantumDrive) {
+            if (gravBody.allowQuantum) {
                 SetStage(FLIGHT_STATE.QUANTUM);
             } else {
                 Debug.Log("Too close for Quantum Flight");
@@ -72,7 +79,6 @@ public class ShipControl : MonoBehaviour {
             foreach (GameObject light in engineLights) {
                 light.GetComponent<Light>().intensity = Mathf.Lerp (light.GetComponent<Light>().intensity, 8f, 0.5f * Time.deltaTime);
             }
-            
         } else {
             foreach (GameObject light in engineLights) {
                 light.GetComponent<Light>().intensity = GetThrust().z * 3f;
@@ -104,6 +110,9 @@ public class ShipControl : MonoBehaviour {
                 flightAssist = false;
                 maxSpeed = quantumSpeed;
                 enginePower = 200f;
+                uiAsstOff.color = new Color(0f, 1f, 1f);
+                uiAstro.color = new Color(50 / 255f, 50 / 255f, 50 / 255f);
+                uiQuantum.color = new Color(50 / 255f, 50 / 255f, 50 / 255f);
                 break;
             }
             case FLIGHT_STATE.ASTRO: {
@@ -111,12 +120,19 @@ public class ShipControl : MonoBehaviour {
                 flightAssist = true;
                 maxSpeed = 50f;
                 enginePower = 200f;
+                uiAsstOff.color = new Color(50 / 255f, 50 / 255f, 50 / 255f);
+                uiAstro.color = new Color(0f, 1f, 1f);
+                uiQuantum.color = new Color(50 / 255f, 50 / 255f, 50 / 255f);
                 break;
             }
             case FLIGHT_STATE.QUANTUM: {
                 Debug.Log("Quantum Flight engaged");
+                flightAssist = true;
                 maxSpeed = quantumSpeed;
                 enginePower = 0f;
+                uiAsstOff.color = new Color(50 / 255f, 50 / 255f, 50 / 255f);
+                uiAstro.color = new Color(50 / 255f, 50 / 255f, 50 / 255f);
+                uiQuantum.color = new Color(0f, 1f, 1f);
                 break;
             }
             default:
