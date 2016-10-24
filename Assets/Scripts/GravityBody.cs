@@ -43,7 +43,7 @@ public class GravityBody : MonoBehaviour {
     }
 
     void FixedUpdate() {
-        if (!shipControl.flightAssist) {
+        if (shipControl.stage == ShipControl.FLIGHT_STATE.ASST_OFF) {
             for (int i = 0; i < attractors.Length; i++) {
                 attractors[i].GetComponent<GravityAttractor>().Attract(position);
             }

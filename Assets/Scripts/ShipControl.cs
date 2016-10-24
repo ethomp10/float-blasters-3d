@@ -9,7 +9,6 @@ public class ShipControl : MonoBehaviour {
     public float maxSpeed = 50f;
     public float quantumSpeed = 2000f;
     public float maxRotationSpeed = 20f;
-    public bool flightAssist = true;
 
     public Text uiAsstOff;
     public Text uiAstro;
@@ -39,18 +38,18 @@ public class ShipControl : MonoBehaviour {
 
         // Flight Assist stuff
         if (Input.GetButtonDown("Toggle Flight Assist")) {
-            if (flightAssist) {
+            if (stage > 0) {
                 SetStage(FLIGHT_STATE.ASST_OFF);
             } else {
                 SetStage(FLIGHT_STATE.ASTRO);
             }
         }
 
-        if (flightAssist && Input.GetButtonDown("Astro Flight")) {
+        if (Input.GetButtonDown("Astro Flight")) {
             SetStage(FLIGHT_STATE.ASTRO);
         }
 
-        if (flightAssist && Input.GetButtonDown("Quantum Flight")) {
+        if (Input.GetButtonDown("Quantum Flight")) {
             if (gravBody.allowQuantum) {
                 SetStage(FLIGHT_STATE.QUANTUM);
             } else {
@@ -66,7 +65,7 @@ public class ShipControl : MonoBehaviour {
             shipRB.velocity = Vector3.Slerp(shipRB.velocity, transform.forward * quantumSpeed, 0.5f * Time.deltaTime);
         }
 
-        if (flightAssist && GetThrust() == Vector3.zero) {
+        if (stage > 0 && GetThrust() == Vector3.zero) {
             if (stage == FLIGHT_STATE.ASTRO) {
                 shipRB.drag = 1f;
             } else if (stage == FLIGHT_STATE.QUANTUM) {
@@ -102,7 +101,7 @@ public class ShipControl : MonoBehaviour {
         netForce.z *= 2f; // Give primary thrusters more power than the rest
         Vector3 netTorque = GetTorque() * boosterPower;
 
-        if (flightAssist && netTorque == Vector3.zero) {
+        if (stage > 0 && netTorque == Vector3.zero) {
             shipRB.angularDrag = 2f;
         } else {
             shipRB.angularDrag = 0f;
@@ -116,7 +115,6 @@ public class ShipControl : MonoBehaviour {
         switch (stage) {
             case FLIGHT_STATE.ASST_OFF: {
                 Debug.Log("Flight Assist off");
-                flightAssist = false;
                 maxSpeed = quantumSpeed;
                 enginePower = 200f;
                 boosterPower = 100f;
@@ -127,7 +125,6 @@ public class ShipControl : MonoBehaviour {
             }
             case FLIGHT_STATE.ASTRO: {
                 Debug.Log("Astro Flight engaged");
-                flightAssist = true;
                 maxSpeed = 50f;
                 enginePower = 200f;
                 boosterPower = 100f;
@@ -138,7 +135,6 @@ public class ShipControl : MonoBehaviour {
             }
             case FLIGHT_STATE.QUANTUM: {
                 Debug.Log("Quantum Flight engaged");
-                flightAssist = true;
                 maxSpeed = quantumSpeed;
                 enginePower = 0f;
                 boosterPower = 30f;
