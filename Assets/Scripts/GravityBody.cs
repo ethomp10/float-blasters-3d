@@ -4,7 +4,7 @@ using System.Collections;
 public class GravityBody : MonoBehaviour {
 
     public GameObject[] attractors;
-    public bool allowQuantumDrive = true;
+    public bool allowQuantumDrive = false;
 
     private Transform position;
     private ShipControl shipControl;
@@ -24,10 +24,8 @@ public class GravityBody : MonoBehaviour {
                 allowQuantumDrive = false;
                 if (shipControl.stage == ShipControl.FLIGHT_STATE.QUANTUM) {
                     shipControl.SetStage(ShipControl.FLIGHT_STATE.ASTRO); // Emergency drop
-                    Debug.Log("Too close for Astro Flight");
+                    Debug.Log("Astro Flight engaged (saftey override)");
                 }
-            } else {
-                allowQuantumDrive = true;
             }
         }
     }

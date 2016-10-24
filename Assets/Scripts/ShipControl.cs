@@ -44,14 +44,14 @@ public class ShipControl : MonoBehaviour {
         if (flightAssist && Input.GetButtonDown("Flight Stage 2")) {
             if (gravBody.allowQuantumDrive) {
                 SetStage(FLIGHT_STATE.QUANTUM);
+            } else {
+                Debug.Log("Too close for Quantum Flight");
             }
         }
 
         if (GetSpeed() > maxSpeed) {
             shipRB.velocity = Vector3.Slerp(shipRB.velocity, shipRB.velocity.normalized * maxSpeed, 5f * Time.deltaTime);
         }
-
-        // Chester is awesome!! 
 
         if (stage == FLIGHT_STATE.QUANTUM) {
             shipRB.velocity = Vector3.Slerp(shipRB.velocity, transform.forward * quantumSpeed, 0.5f * Time.deltaTime);
@@ -60,7 +60,7 @@ public class ShipControl : MonoBehaviour {
         if (flightAssist && GetThrust() == Vector3.zero) {
             if (stage == FLIGHT_STATE.ASTRO) {
                 shipRB.drag = 1f;
-            } else if (stage >= FLIGHT_STATE.QUANTUM) {
+            } else if (stage == FLIGHT_STATE.QUANTUM) {
                 shipRB.drag = 0f;
             }
         } else {
@@ -100,21 +100,21 @@ public class ShipControl : MonoBehaviour {
     public void SetStage(FLIGHT_STATE stage) {
         switch (stage) {
             case FLIGHT_STATE.ASST_OFF: {
-                Debug.Log("Flight Assist Off");
+                Debug.Log("Flight Assist off");
                 flightAssist = false;
                 maxSpeed = quantumSpeed;
                 enginePower = 200f;
                 break;
             }
             case FLIGHT_STATE.ASTRO: {
-                Debug.Log("Astro Flight Engaged");
+                Debug.Log("Astro Flight engaged");
                 flightAssist = true;
                 maxSpeed = 50f;
                 enginePower = 200f;
                 break;
             }
             case FLIGHT_STATE.QUANTUM: {
-                Debug.Log("Quantum Flight Engaged");
+                Debug.Log("Quantum Flight engaged");
                 maxSpeed = quantumSpeed;
                 enginePower = 0f;
                 break;
