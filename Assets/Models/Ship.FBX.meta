@@ -1,15 +1,37 @@
 fileFormatVersion: 2
-guid: 2a253fd9e0f86224c8923518601e2aed
-timeCreated: 1477013304
+guid: d217f69089345624ca9adfff51c5faa8
+timeCreated: 1477247252
 licenseType: Free
 ModelImporter:
   serializedVersion: 19
   fileIDToRecycleName:
     100000: //RootNode
+    100002: Canopy
+    100004: Engine
+    100006: Guns
+    100008: Intake
+    100010: Ship
     400000: //RootNode
-    2300000: //RootNode
-    3300000: //RootNode
+    400002: Canopy
+    400004: Engine
+    400006: Guns
+    400008: Intake
+    400010: Ship
+    2300000: Canopy
+    2300002: Engine
+    2300004: Guns
+    2300006: Intake
+    2300008: Ship
+    3300000: Canopy
+    3300002: Engine
+    3300004: Guns
+    3300006: Intake
+    3300008: Ship
     4300000: Ship
+    4300002: Canopy
+    4300004: Guns
+    4300006: Engine
+    4300008: Intake
     9500000: //RootNode
   materials:
     importMaterials: 1
@@ -35,7 +57,7 @@ ModelImporter:
     isReadable: 1
   meshes:
     lODScreenPercentages: []
-    globalScale: 10
+    globalScale: 1
     meshCompression: 0
     addColliders: 0
     importBlendShapes: 1
