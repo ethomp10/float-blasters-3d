@@ -21,6 +21,7 @@ public class ShipControl : MonoBehaviour {
     private Rigidbody shipRB;
     private GravityBody gravBody;
     private GameObject[] engineLights;
+    private ParticleSystem quantumParticles;
     
     void Start() {
         Cursor.visible = false;
@@ -31,6 +32,7 @@ public class ShipControl : MonoBehaviour {
         gravBody = GetComponent<GravityBody>();
         SetStage(FLIGHT_STATE.ASST_OFF);
         engineLights = GameObject.FindGameObjectsWithTag("EngineGlow");
+        quantumParticles = GetComponentInChildren<ParticleSystem>();
     }
 
     void Update() {
@@ -44,11 +46,11 @@ public class ShipControl : MonoBehaviour {
             }
         }
 
-        if (flightAssist && Input.GetButtonDown("Flight Stage 1")) {
+        if (flightAssist && Input.GetButtonDown("Astro Flight")) {
             SetStage(FLIGHT_STATE.ASTRO);
         }
 
-        if (flightAssist && Input.GetButtonDown("Flight Stage 2")) {
+        if (flightAssist && Input.GetButtonDown("Quantum Flight")) {
             if (gravBody.allowQuantum) {
                 SetStage(FLIGHT_STATE.QUANTUM);
             } else {
@@ -84,6 +86,13 @@ public class ShipControl : MonoBehaviour {
                 light.GetComponent<Light>().intensity = GetThrust().z * 3f;
             }
         }
+
+        // Quantum Partocles
+        if (stage == FLIGHT_STATE.QUANTUM) {
+            quantumParticles.Play();
+        } else {
+            quantumParticles.Stop();
+        }
     }
 
     // Physics
@@ -110,6 +119,7 @@ public class ShipControl : MonoBehaviour {
                 flightAssist = false;
                 maxSpeed = quantumSpeed;
                 enginePower = 200f;
+                boosterPower = 100f;
                 uiAsstOff.color = new Color(0f, 1f, 1f);
                 uiAstro.color = new Color(50 / 255f, 50 / 255f, 50 / 255f);
                 uiQuantum.color = new Color(50 / 255f, 50 / 255f, 50 / 255f);
@@ -120,6 +130,7 @@ public class ShipControl : MonoBehaviour {
                 flightAssist = true;
                 maxSpeed = 50f;
                 enginePower = 200f;
+                boosterPower = 100f;
                 uiAsstOff.color = new Color(50 / 255f, 50 / 255f, 50 / 255f);
                 uiAstro.color = new Color(0f, 1f, 1f);
                 uiQuantum.color = new Color(50 / 255f, 50 / 255f, 50 / 255f);
@@ -130,6 +141,7 @@ public class ShipControl : MonoBehaviour {
                 flightAssist = true;
                 maxSpeed = quantumSpeed;
                 enginePower = 0f;
+                boosterPower = 30f;
                 uiAsstOff.color = new Color(50 / 255f, 50 / 255f, 50 / 255f);
                 uiAstro.color = new Color(50 / 255f, 50 / 255f, 50 / 255f);
                 uiQuantum.color = new Color(0f, 1f, 1f);
