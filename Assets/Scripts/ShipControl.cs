@@ -55,11 +55,11 @@ public class ShipControl : MonoBehaviour {
     void Update() {
         // Flight Assist stuff
         if (Input.GetButtonDown("Toggle Flight Assist")) {
-            if (stage > 0) {
+			if (stage == FLIGHT_STATE.ASTRO) {
                 SetStage(FLIGHT_STATE.ASST_OFF);
-            } else {
+			} else {
                 SetStage(FLIGHT_STATE.ASTRO);
-            }
+			}
         }
 
         if (Input.GetButtonDown("Astro Flight")) {
