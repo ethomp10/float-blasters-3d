@@ -16,8 +16,17 @@ public class GravityAttractor : MonoBehaviour {
         body.GetComponent<Rigidbody>().AddForce(gravity);
     }
 
-    public float GetDistanceToBody(Transform body) {
-        attractorToBody = (body.position - GetComponent<Transform>().position);
-        return attractorToBody.magnitude;
-    }
+	public void SetBodyOrientation(Transform body) {
+		attractorToBody = GetVectorToBody(body);
+		body.transform.rotation = Quaternion.FromToRotation (body.transform.up, attractorToBody.normalized) * body.rotation;
+	}
+
+	private Vector3 GetVectorToBody(Transform body) {
+		return (body.position - GetComponent<Transform> ().position);
+	}
+
+	public float GetDistanceToBody(Transform body) {
+		attractorToBody = GetVectorToBody(body);
+		return attractorToBody.magnitude;
+	}
 }

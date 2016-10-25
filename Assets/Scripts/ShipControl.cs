@@ -20,26 +20,31 @@ public class ShipControl : MonoBehaviour {
     public FLIGHT_STATE stage;
 
     // Private Variables
+	private Vector3 netForce;
+	private Vector3 netTorque;
     private float distanceToAttractor;
     private bool allowQuantum;
 
     private Rigidbody shipRB;
     private Transform position;
-    private GravityBody gravBody;
-    private GravityAttractor[] attractors;
+    private GravityBody shipGB;
+    private GravityAttractor[] planets;
     private GameObject[] engineLights;
     private ParticleSystem quantumParticles;
 
     void Start() {
         Cursor.visible = false;
+		Cursor.lockState = CursorLockMode.Locked;
 
         // Set up ship
+		netForce = Vector3.zero;
+		netTorque = Vector3.zero;
         shipRB = GetComponent<Rigidbody>();
         shipRB.maxAngularVelocity = maxRotationSpeed;
         position = GetComponent<Transform>();
 
-        gravBody = GetComponent<GravityBody>();
-        attractors = FindObjectsOfType<GravityAttractor>();
+        shipGB = GetComponent<GravityBody>();
+        planets = FindObjectsOfType<GravityAttractor>();
 
         engineLights = GameObject.FindGameObjectsWithTag("EngineGlow");
         quantumParticles = GetComponentInChildren<ParticleSystem>();
@@ -48,7 +53,6 @@ public class ShipControl : MonoBehaviour {
     }
 
     void Update() {
-
         // Flight Assist stuff
         if (Input.GetButtonDown("Toggle Flight Assist")) {
             if (stage > 0) {
@@ -89,8 +93,8 @@ public class ShipControl : MonoBehaviour {
         }
 
         // Emergency drop
-        for (int i = 0; i < attractors.Length; i++) {
-            distanceToAttractor = attractors[i].GetDistanceToBody(position);
+        for (int i = 0; i < planets.Length; i++) {
+            distanceToAttractor = planets[i].GetDistanceToBody(position);
             if (distanceToAttractor <= 1000f) {
                 allowQuantum = false;
                 if (stage == ShipControl.FLIGHT_STATE.QUANTUM) {
@@ -132,9 +136,10 @@ public class ShipControl : MonoBehaviour {
     // Physics
     void FixedUpdate() {
 
-        Vector3 netForce = GetThrust() * enginePower;
-        netForce.z *= 2f; // Give primary thrusters more power than the rest
-        Vector3 netTorque = GetTorque() * boosterPower;
+		// Get forces from input
+		netForce = GetThrust() * enginePower;
+		netForce.z *= 2f; // Give primary thrusters more power than the rest
+		netTorque = GetTorque() * boosterPower;
 
         if (stage > 0 && netTorque == Vector3.zero) {
             shipRB.angularDrag = 2f;
@@ -152,7 +157,7 @@ public class ShipControl : MonoBehaviour {
                 maxSpeed = quantumSpeed;
                 enginePower = 200f;
                 boosterPower = 100f;
-                gravBody.enabled = true;
+                shipGB.enabled = true;
                 uiAsstOff.color = new Color(0f, 1f, 1f);
                 uiAstro.color = new Color(50 / 255f, 50 / 255f, 50 / 255f);
                 uiQuantum.color = new Color(50 / 255f, 50 / 255f, 50 / 255f);
@@ -163,7 +168,7 @@ public class ShipControl : MonoBehaviour {
                 maxSpeed = 50f;
                 enginePower = 200f;
                 boosterPower = 100f;
-                gravBody.enabled = false;
+                shipGB.enabled = false;
                 uiAsstOff.color = new Color(50 / 255f, 50 / 255f, 50 / 255f);
                 uiAstro.color = new Color(0f, 1f, 1f);
                 uiQuantum.color = new Color(50 / 255f, 50 / 255f, 50 / 255f);
@@ -174,7 +179,7 @@ public class ShipControl : MonoBehaviour {
                 maxSpeed = quantumSpeed;
                 enginePower = 0f;
                 boosterPower = 30f;
-                gravBody.enabled = false;
+                shipGB.enabled = false;
                 uiAsstOff.color = new Color(50 / 255f, 50 / 255f, 50 / 255f);
                 uiAstro.color = new Color(50 / 255f, 50 / 255f, 50 / 255f);
                 uiQuantum.color = new Color(0f, 1f, 1f);
