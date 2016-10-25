@@ -10,7 +10,7 @@ public class GravityAttractor : MonoBehaviour {
     private float radius;
 
     public void Attract(Transform body) {
-        attractorToBody = (body.position - GetComponent<Transform>().position);
+		attractorToBody = GetVectorToBody(body);
         radius = GetDistanceToBody(body);
         gravity = (-attractorToBody.normalized * (gravityStrength * 50f / radius));
         body.GetComponent<Rigidbody>().AddForce(gravity);
