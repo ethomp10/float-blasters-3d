@@ -9,7 +9,8 @@ public class ShipControl : MonoBehaviour {
     public float boosterPower = 100f; // Affects net torque
     public float maxSpeed = 50f;
     public float quantumSpeed = 2000f;
-    public float maxRotationSpeed = 2f;
+    public Color defaultEngineColor;
+    public Color quantumEngineColor;
 
     public Text uiAsstOff;
     public Text uiAstro;
@@ -32,6 +33,7 @@ public class ShipControl : MonoBehaviour {
     private GameObject[] engineLights;
     private ParticleSystem quantumParticles;
     private SkinnedMeshRenderer shipMesh;
+    private float currentEngineState;
 
     void Start() {
         Cursor.visible = false;
@@ -84,15 +86,13 @@ public class ShipControl : MonoBehaviour {
             shipRB.velocity = Vector3.Slerp(shipRB.velocity, transform.forward * quantumSpeed, 0.5f * Time.deltaTime);
         }
 
-        if (stage > 0 && GetThrust() == Vector3.zero) {
+        if (GetThrust() == Vector3.zero) {
             if (stage == FLIGHT_STATE.ASTRO) {
                 shipRB.drag = 1f;
-            } else if (stage == FLIGHT_STATE.QUANTUM) {
+            } else {
                 shipRB.drag = 0f;
             }
-        } else {
-            shipRB.drag = 0f;
-        }
+        } 
 
         // Emergency drop
         for (int i = 0; i < planets.Length; i++) {
@@ -120,10 +120,12 @@ public class ShipControl : MonoBehaviour {
         if (stage == FLIGHT_STATE.QUANTUM) {
             foreach (GameObject light in engineLights) {
                 light.GetComponent<Light>().intensity = Mathf.Lerp(light.GetComponent<Light>().intensity, 8f, 0.5f * Time.deltaTime);
+                light.GetComponent<Light>().color = Color.Lerp(light.GetComponent<Light>().color, quantumEngineColor, 0.5f * Time.deltaTime);
             }
         } else {
             foreach (GameObject light in engineLights) {
-                light.GetComponent<Light>().intensity = GetThrust().z * 3f + 0.5f;
+                light.GetComponent<Light>().intensity = Mathf.Lerp(light.GetComponent<Light>().intensity, GetThrust().z * 3f + 1f, 0.5f * Time.deltaTime);
+                light.GetComponent<Light>().color = Color.Lerp(light.GetComponent<Light>().color, defaultEngineColor, 0.5f * Time.deltaTime);
             }
         }
 
@@ -135,9 +137,16 @@ public class ShipControl : MonoBehaviour {
         }
 
         // Engine throttle animation
-        shipMesh.SetBlendShapeWeight(0, GetThrust().z * 100f);
+        currentEngineState = shipMesh.GetBlendShapeWeight(0);
 
-        //if (stage)
+        if (stage == FLIGHT_STATE.QUANTUM) {
+            shipMesh.SetBlendShapeWeight(0, Mathf.Lerp(currentEngineState, 100f, 1f * Time.deltaTime));
+        } else {
+            shipMesh.SetBlendShapeWeight(0, Mathf.Lerp(currentEngineState, GetThrust().z * 100f, 1f * Time.deltaTime));
+        }
+
+
+        
     }
 
     // Physics
