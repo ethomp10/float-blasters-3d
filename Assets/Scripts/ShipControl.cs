@@ -9,6 +9,7 @@ public class ShipControl : MonoBehaviour {
     public float boosterPower = 100f; // Affects net torque
     public float maxSpeed = 50f;
     public float quantumSpeed = 2000f;
+    public float maxRotationSpeed = 1.5f;
     public Color defaultEngineColor;
     public Color quantumEngineColor;
 
