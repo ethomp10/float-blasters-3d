@@ -6,10 +6,11 @@ public class CameraEffects : MonoBehaviour {
     public float astroFOV = 65f;
     public float quantumFOV = 120f;
     public bool firstPerson = false;
+    public Transform camPos;
 
     private ShipControl shipControl;
     private Camera cam;
-    private Transform camPos;
+    //private Transform camPos;
     private Vector3 firstPersonPos;
     private Vector3 ThirdPersonPos;
 
@@ -19,8 +20,8 @@ public class CameraEffects : MonoBehaviour {
         camPos = GetComponent<Transform>();
         shipControl = GetComponentInParent<ShipControl>();
 
-        firstPersonPos = new Vector3(0f, 1.36f, -2.81f);
-        ThirdPersonPos = new Vector3(0f, 3.8f, -12.7f);
+        firstPersonPos = camPos.localPosition; // Needs update
+        ThirdPersonPos = camPos.localPosition;
     }
 
     // Update is called once per frame

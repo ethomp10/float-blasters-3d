@@ -31,6 +31,7 @@ public class ShipControl : MonoBehaviour {
     private GravityAttractor[] planets;
     private GameObject[] engineLights;
     private ParticleSystem quantumParticles;
+    private SkinnedMeshRenderer shipMesh;
 
     void Start() {
         Cursor.visible = false;
@@ -48,6 +49,7 @@ public class ShipControl : MonoBehaviour {
 
         engineLights = GameObject.FindGameObjectsWithTag("EngineGlow");
         quantumParticles = GetComponentInChildren<ParticleSystem>();
+        shipMesh = GetComponentInChildren<SkinnedMeshRenderer>();
 
         SetStage(FLIGHT_STATE.ASST_OFF);
     }
@@ -121,7 +123,7 @@ public class ShipControl : MonoBehaviour {
             }
         } else {
             foreach (GameObject light in engineLights) {
-                light.GetComponent<Light>().intensity = GetThrust().z * 3f;
+                light.GetComponent<Light>().intensity = GetThrust().z * 3f + 0.5f;
             }
         }
 
@@ -131,6 +133,11 @@ public class ShipControl : MonoBehaviour {
         } else {
             quantumParticles.Stop();
         }
+
+        // Engine throttle animation
+        shipMesh.SetBlendShapeWeight(0, GetThrust().z * 100f);
+
+        //if (stage)
     }
 
     // Physics
