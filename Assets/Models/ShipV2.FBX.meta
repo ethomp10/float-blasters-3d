@@ -8,17 +8,27 @@ ModelImporter:
     100000: //RootNode
     100002: Thrusters
     100004: Body
+    100006: Canopy
+    100008: Hoses
     400000: //RootNode
     400002: Thrusters
     400004: Body
+    400006: Canopy
+    400008: Hoses
     2300000: //RootNode
     2300002: Thrusters
     2300004: Body
+    2300006: Canopy
+    2300008: Hoses
     3300000: //RootNode
     3300002: Thrusters
     3300004: Body
+    3300006: Canopy
+    3300008: Hoses
     4300000: Thrusters
     4300002: Body
+    4300004: Canopy
+    4300006: Hoses
     7400000: Take 001
     9500000: //RootNode
     11100000: //RootNode
