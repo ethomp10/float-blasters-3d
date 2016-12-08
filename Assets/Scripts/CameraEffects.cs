@@ -6,13 +6,13 @@ public class CameraEffects : MonoBehaviour {
     public float astroFOV = 65f;
     public float quantumFOV = 120f;
     public bool firstPerson = false;
-    public Transform camPos;
 
     private ShipControl shipControl;
     private Camera cam;
     //private Transform camPos;
     private Vector3 firstPersonPos;
     private Vector3 ThirdPersonPos;
+    private Transform camPos;
 
     // Use this for initialization
     void Start() {

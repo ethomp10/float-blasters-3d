@@ -120,7 +120,7 @@ public class ShipControl : MonoBehaviour {
         // Engine Glow
         if (stage == FLIGHT_STATE.QUANTUM) {
             foreach (GameObject light in engineLights) {
-                light.GetComponent<Light>().intensity = Mathf.Lerp(light.GetComponent<Light>().intensity, 8f, 0.5f * Time.deltaTime);
+                light.GetComponent<Light>().intensity = Mathf.Lerp(light.GetComponent<Light>().intensity, 8f, 1f * Time.deltaTime);
                 light.GetComponent<Light>().color = Color.Lerp(light.GetComponent<Light>().color, quantumEngineColor, 0.5f * Time.deltaTime);
             }
         } else {

@@ -1,16 +1,58 @@
 fileFormatVersion: 2
-guid: 35a158202a7a4cb4289eaaaccabeb831
-timeCreated: 1477163636
+guid: 60cddfa84a7427442a5e7a587b43955c
+timeCreated: 1481147463
 licenseType: Free
 ModelImporter:
   serializedVersion: 19
   fileIDToRecycleName:
-    100000: //RootNode
-    400000: //RootNode
-    2300000: //RootNode
-    3300000: //RootNode
-    4300000: Pad
+    100000: Canopy
+    100002: Fuel Distributer
+    100004: Glass
+    100006: Guns
+    100008: Hoses
+    100010: //RootNode
+    100012: Thrusters
+    100014: Wires
+    100016: Distributer
+    400000: Canopy
+    400002: Fuel Distributer
+    400004: Glass
+    400006: Guns
+    400008: Hoses
+    400010: //RootNode
+    400012: Thrusters
+    400014: Wires
+    400016: Distributer
+    2300000: Canopy
+    2300002: Fuel Distributer
+    2300004: Glass
+    2300006: Guns
+    2300008: Hoses
+    2300010: //RootNode
+    2300012: Wires
+    2300014: Distributer
+    2300016: Thrusters
+    3300000: Canopy
+    3300002: Fuel Distributer
+    3300004: Glass
+    3300006: Guns
+    3300008: Hoses
+    3300010: //RootNode
+    3300012: Wires
+    3300014: Distributer
+    3300016: Thrusters
+    4300000: Ship
+    4300002: Thrusters
+    4300004: Guns
+    4300006: Canopy
+    4300008: Glass
+    4300010: Hoses
+    4300012: Fuel Distributer
+    4300014: Wires
+    4300016: Distributer
     9500000: //RootNode
+    11100000: //RootNode
+    13700000: Thrusters
   materials:
     importMaterials: 1
     materialName: 0
@@ -69,7 +111,7 @@ ModelImporter:
     rootMotionBoneName: 
     hasTranslationDoF: 0
   lastHumanDescriptionAvatarSource: {instanceID: 0}
-  animationType: 0
+  animationType: 1
   humanoidOversampling: 1
   additionalBone: 0
   userData: 
