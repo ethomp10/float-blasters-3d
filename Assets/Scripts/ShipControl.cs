@@ -10,8 +10,10 @@ public class ShipControl : MonoBehaviour {
     public float maxSpeed = 50f;
     public float quantumSpeed = 2000f;
     public float maxRotationSpeed = 1.5f;
-    public Color defaultEngineColor;
-    public Color quantumEngineColor;
+    public Color defaultEngineColor = new Color(0f, 1f, 1f);
+    public Color quantumEngineColor = new Color(0f, 1f, 0f);
+    public Color uiInactive = new Color(0f, 1f, 1f);
+    public Color uiActive = new Color(50 / 255f, 50 / 255f, 50 / 255f);
 
     public Text uiAsstOff;
     public Text uiAstro;
@@ -19,7 +21,7 @@ public class ShipControl : MonoBehaviour {
     public Image uiQuantumReady;
 
     public enum FLIGHT_STATE { ASST_OFF, ASTRO, QUANTUM };
-    public FLIGHT_STATE stage;
+    public FLIGHT_STATE stage = FLIGHT_STATE.ASTRO;
 
     // Private Variables
 	private Vector3 netForce;
@@ -54,7 +56,7 @@ public class ShipControl : MonoBehaviour {
         quantumParticles = GetComponentInChildren<ParticleSystem>();
         shipMesh = GetComponentInChildren<SkinnedMeshRenderer>();
 
-        SetStage(FLIGHT_STATE.ASST_OFF);
+        SetStage(stage);
     }
 
     void Update() {
