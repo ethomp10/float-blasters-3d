@@ -52,8 +52,7 @@ public class ShipControl : MonoBehaviour {
 
         shipGB = GetComponent<GravityBody>();
         planets = FindObjectsOfType<GravityAttractor>();
-
-        //engineLights = GameObject.FindGameObjectsWithTag("EngineGlow");
+        
         quantumParticles = GetComponentInChildren<ParticleSystem>();
         engineMesh = GetComponentInChildren<SkinnedMeshRenderer>();
 
