@@ -6,28 +6,13 @@ public class CameraEffects : MonoBehaviour {
     // Public
     public float astroFOV = 65f;
     public float quantumFOV = 120f;
-    public float camRotationSpeed;
 
     // Private
     private Camera cam;
-    private Transform player;
     private ShipControl shipControl;
 
-    private Transform targetCamPos;
-    private Transform camPos;
-
-    private Vector3 initialOffset;
-    private Vector3 currentOffset;
-
-
-
     void Start() {
-
         cam = GetComponent<Camera>();
-        camPos = GetComponent<Transform>();
-        targetCamPos = camPos;
-
-        player = GetComponentInParent<Transform>();
         shipControl = GetComponentInParent<ShipControl>();
     }
 
