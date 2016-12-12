@@ -10,11 +10,13 @@ public class ShipControl : MonoBehaviour {
     public float maxSpeed = 50f;
     public float quantumSpeed = 2000f;
     public float maxRotationSpeed = 1.5f;
+
+    public Light[] engineLights;
     public Color defaultEngineColor = new Color(0f, 1f, 1f);
     public Color quantumEngineColor = new Color(0f, 1f, 0f);
+
     public Color uiActive = new Color(0f, 1f, 1f);
     public Color uiInactive = new Color(50 / 255f, 50 / 255f, 50 / 255f);
-
     public Text uiAsstOff;
     public Text uiAstro;
     public Text uiQuantum;
@@ -33,9 +35,8 @@ public class ShipControl : MonoBehaviour {
     private Transform position;
     private GravityBody shipGB;
     private GravityAttractor[] planets;
-    private GameObject[] engineLights;
     private ParticleSystem quantumParticles;
-    private SkinnedMeshRenderer shipMesh;
+    private SkinnedMeshRenderer engineMesh;
     private float currentEngineState;
 
     void Start() {
@@ -52,9 +53,9 @@ public class ShipControl : MonoBehaviour {
         shipGB = GetComponent<GravityBody>();
         planets = FindObjectsOfType<GravityAttractor>();
 
-        engineLights = GameObject.FindGameObjectsWithTag("EngineGlow");
+        //engineLights = GameObject.FindGameObjectsWithTag("EngineGlow");
         quantumParticles = GetComponentInChildren<ParticleSystem>();
-        shipMesh = GetComponentInChildren<SkinnedMeshRenderer>();
+        engineMesh = GetComponentInChildren<SkinnedMeshRenderer>();
 
         SetStage(stage);
     }
@@ -112,7 +113,7 @@ public class ShipControl : MonoBehaviour {
             }
         }
 
-        // Quantum Flight  light
+        // Quantum Flight indicator light
         if (allowQuantum) {
             uiQuantumReady.color = Color.green;
         } else {
@@ -121,14 +122,14 @@ public class ShipControl : MonoBehaviour {
 
         // Engine Glow
         if (stage == FLIGHT_STATE.QUANTUM) {
-            foreach (GameObject light in engineLights) {
-                light.GetComponent<Light>().intensity = Mathf.Lerp(light.GetComponent<Light>().intensity, 8f, 1f * Time.deltaTime);
-                light.GetComponent<Light>().color = Color.Lerp(light.GetComponent<Light>().color, quantumEngineColor, 0.5f * Time.deltaTime);
+            foreach (Light engineLight in engineLights) {
+                engineLight.intensity = Mathf.Lerp(engineLight.intensity, 8f, 1f * Time.deltaTime);
+                engineLight.color = Color.Lerp(engineLight.color, quantumEngineColor, 0.5f * Time.deltaTime);
             }
         } else {
-            foreach (GameObject light in engineLights) {
-                light.GetComponent<Light>().intensity = Mathf.Lerp(light.GetComponent<Light>().intensity, GetThrust().z * 3f + 1f, 0.5f * Time.deltaTime);
-                light.GetComponent<Light>().color = Color.Lerp(light.GetComponent<Light>().color, defaultEngineColor, 0.5f * Time.deltaTime);
+            foreach (Light engineLight in engineLights) {
+                engineLight.intensity = Mathf.Lerp(engineLight.intensity, GetThrust().z * 3f + 1f, 0.5f * Time.deltaTime);
+                engineLight.color = Color.Lerp(engineLight.color, defaultEngineColor, 0.5f * Time.deltaTime);
             }
         }
 
@@ -140,12 +141,12 @@ public class ShipControl : MonoBehaviour {
         }
 
         // Engine throttle animation
-        currentEngineState = shipMesh.GetBlendShapeWeight(0);
+        currentEngineState = engineMesh.GetBlendShapeWeight(0);
 
         if (stage == FLIGHT_STATE.QUANTUM) {
-            shipMesh.SetBlendShapeWeight(0, Mathf.Lerp(currentEngineState, 100f, 1f * Time.deltaTime));
+            engineMesh.SetBlendShapeWeight(0, Mathf.Lerp(currentEngineState, 100f, 1f * Time.deltaTime));
         } else {
-            shipMesh.SetBlendShapeWeight(0, Mathf.Lerp(currentEngineState, GetThrust().z * 100f, 1f * Time.deltaTime));
+            engineMesh.SetBlendShapeWeight(0, Mathf.Lerp(currentEngineState, GetThrust().z * 100f, 1f * Time.deltaTime));
         }
 
 

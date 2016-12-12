@@ -5,7 +5,7 @@ public class GravityBody : MonoBehaviour {
 
     private GravityAttractor[] attractors;
     private Transform bodyTransform;
-    private float distanceToAttractor;
+    //private float distanceToAttractor;
 
     void Start() {
 		bodyTransform = GetComponent<Transform>();

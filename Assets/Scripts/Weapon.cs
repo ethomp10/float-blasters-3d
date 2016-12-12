@@ -5,14 +5,15 @@ public class Weapon : MonoBehaviour {
 
     // Public
     public float fireRate = 60f;
+    public float weaponDamage = 5f;
+    public Transform[] firePoints;
 
     // Private
-    private Transform[] firePoints;
     private bool canFire = true;
 
 	// Use this for initialization
 	void Start () {
-        firePoints = GetComponentsInChildren<Transform>(false);
+        //firePoints = GetComponentsInChildren<Transform>(false);
 	}
 
     // Update is called once per frame
@@ -26,24 +27,26 @@ public class Weapon : MonoBehaviour {
 
         if (canFire) {
             foreach (Transform firePoint in firePoints) {
-                if (firePoint.GetInstanceID() != transform.GetInstanceID()) {
-                    Ray laser = new Ray(firePoint.position, firePoint.forward);
-                    RaycastHit hit;
+                Ray laser = new Ray(firePoint.position, firePoint.forward);
+                RaycastHit hit;
 
-                    if (Physics.Raycast(laser, out hit)) {
-                        Debug.Log("Hit " + hit.collider.gameObject);
+                if (Physics.Raycast(laser, out hit)) {
+                    //Debug.Log("Hit " + hit.collider.gameObject);
+
+                    if (hit.collider.gameObject.layer == LayerMask.NameToLayer("Enemy")) {
+                        hit.collider.gameObject.GetComponent<EnemyAI>().Damage(weaponDamage);
                     }
-
-                    Debug.DrawRay(laser.origin, laser.direction * 1000f, Color.red, 3f);
                 }
-            }
 
-            canFire = false;
+                Debug.DrawRay(laser.origin, laser.direction * 1000f, Color.red, 3f);
+            }
             StartCoroutine(CapFireRate()); 
         }
     }
 
     IEnumerator CapFireRate() {
+        canFire = false;
+
         yield return new WaitForSeconds(60f / fireRate);
 
         canFire = true;
