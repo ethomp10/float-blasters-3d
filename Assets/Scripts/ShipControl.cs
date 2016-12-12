@@ -12,8 +12,8 @@ public class ShipControl : MonoBehaviour {
     public float maxRotationSpeed = 1.5f;
     public Color defaultEngineColor = new Color(0f, 1f, 1f);
     public Color quantumEngineColor = new Color(0f, 1f, 0f);
-    public Color uiInactive = new Color(0f, 1f, 1f);
-    public Color uiActive = new Color(50 / 255f, 50 / 255f, 50 / 255f);
+    public Color uiActive = new Color(0f, 1f, 1f);
+    public Color uiInactive = new Color(50 / 255f, 50 / 255f, 50 / 255f);
 
     public Text uiAsstOff;
     public Text uiAstro;
@@ -177,9 +177,9 @@ public class ShipControl : MonoBehaviour {
                 enginePower = 200f;
                 boosterPower = 100f;
                 shipGB.enabled = true;
-                uiAsstOff.color = new Color(0f, 1f, 1f);
-                uiAstro.color = new Color(50 / 255f, 50 / 255f, 50 / 255f);
-                uiQuantum.color = new Color(50 / 255f, 50 / 255f, 50 / 255f);
+                uiAsstOff.color = uiActive;
+                uiAstro.color = uiInactive;
+                uiQuantum.color = uiInactive;
                 Debug.Log("Flight Assist off");
                 break;
             }
@@ -188,9 +188,9 @@ public class ShipControl : MonoBehaviour {
                 enginePower = 200f;
                 boosterPower = 100f;
                 shipGB.enabled = false;
-                uiAsstOff.color = new Color(50 / 255f, 50 / 255f, 50 / 255f);
-                uiAstro.color = new Color(0f, 1f, 1f);
-                uiQuantum.color = new Color(50 / 255f, 50 / 255f, 50 / 255f);
+                uiAsstOff.color = uiInactive;
+                uiAstro.color = uiActive;
+                uiQuantum.color = uiInactive;
                 Debug.Log("Astro Flight engaged");
                 break;
             }
@@ -199,9 +199,9 @@ public class ShipControl : MonoBehaviour {
                 enginePower = 0f;
                 boosterPower = 30f;
                 shipGB.enabled = false;
-                uiAsstOff.color = new Color(50 / 255f, 50 / 255f, 50 / 255f);
-                uiAstro.color = new Color(50 / 255f, 50 / 255f, 50 / 255f);
-                uiQuantum.color = new Color(0f, 1f, 1f);
+                uiAsstOff.color = uiInactive;
+                uiAstro.color = uiInactive;
+                uiQuantum.color = uiActive;
                 Debug.Log("Quantum Flight engaged");
                 break;
             }

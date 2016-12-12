@@ -3,48 +3,42 @@ using System.Collections;
 
 public class CameraEffects : MonoBehaviour {
 
+    // Public
     public float astroFOV = 65f;
     public float quantumFOV = 120f;
-    public bool firstPerson = false;
+    public float camRotationSpeed;
 
-    private ShipControl shipControl;
+    // Private
     private Camera cam;
-    //private Transform camPos;
-    private Vector3 firstPersonPos;
-    private Vector3 ThirdPersonPos;
+    private Transform player;
+    private ShipControl shipControl;
+
+    private Transform targetCamPos;
     private Transform camPos;
 
-    // Use this for initialization
+    private Vector3 initialOffset;
+    private Vector3 currentOffset;
+
+
+
     void Start() {
+
         cam = GetComponent<Camera>();
         camPos = GetComponent<Transform>();
-        shipControl = GetComponentInParent<ShipControl>();
+        targetCamPos = camPos;
 
-        firstPersonPos = camPos.localPosition; // Needs update
-        ThirdPersonPos = camPos.localPosition;
+        player = GetComponentInParent<Transform>();
+        shipControl = GetComponentInParent<ShipControl>();
     }
 
     // Update is called once per frame
     void Update() {
-
-        if (Input.GetButtonDown("Toggle Camera")) {
-            if (firstPerson) {
-                firstPerson = false;
-            } else {
-                firstPerson = true;
-            }
-        }
+        //camPos.localPosition = Vector3.Lerp(camPos.localPosition);
 
         if (shipControl.stage == ShipControl.FLIGHT_STATE.QUANTUM) {
             cam.fieldOfView = Mathf.Lerp(cam.fieldOfView, quantumFOV, 0.5f * Time.deltaTime);
         } else {
             cam.fieldOfView = Mathf.Lerp(cam.fieldOfView, astroFOV, 1f * Time.deltaTime);
-        }
-
-        if (firstPerson) {
-            camPos.localPosition = Vector3.Lerp(camPos.localPosition, firstPersonPos, 5f * Time.deltaTime);
-        } else {
-            camPos.localPosition = Vector3.Lerp(camPos.localPosition, ThirdPersonPos, 5f * Time.deltaTime);
         }
     }
 }
