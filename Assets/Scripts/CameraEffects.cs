@@ -20,7 +20,7 @@ public class CameraEffects : MonoBehaviour {
     void Update() {
         //camPos.localPosition = Vector3.Lerp(camPos.localPosition);
 
-        if (shipControl.stage == ShipControl.FLIGHT_STATE.QUANTUM) {
+        if (shipControl.activeMode == ShipControl.FLIGHT_MODE.QUANTUM) {
             cam.fieldOfView = Mathf.Lerp(cam.fieldOfView, quantumFOV, 0.5f * Time.deltaTime);
         } else {
             cam.fieldOfView = Mathf.Lerp(cam.fieldOfView, astroFOV, 1f * Time.deltaTime);

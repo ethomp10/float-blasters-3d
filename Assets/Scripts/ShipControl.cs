@@ -22,8 +22,8 @@ public class ShipControl : MonoBehaviour {
     public Text uiQuantum;
     public Image uiQuantumReady;
 
-    public enum FLIGHT_STATE { ASST_OFF, ASTRO, QUANTUM };
-    public FLIGHT_STATE stage = FLIGHT_STATE.ASTRO;
+    public enum FLIGHT_MODE { ASST_OFF, ASTRO, QUANTUM };
+    public FLIGHT_MODE activeMode = FLIGHT_MODE.ASTRO;
 
     // Private Variables
 	private Vector3 netForce;
@@ -53,54 +53,47 @@ public class ShipControl : MonoBehaviour {
         quantumParticles = GetComponentInChildren<ParticleSystem>();
         engineMesh = GetComponentInChildren<SkinnedMeshRenderer>();
 
-        SetStage(stage);
+        SetStage(activeMode);
     }
 
     void Update() {
         // Flight Assist stuff
         if (Input.GetButtonDown("Toggle Flight Assist")) {
-			if (stage == FLIGHT_STATE.ASTRO) {
-                SetStage(FLIGHT_STATE.ASST_OFF);
+			if (activeMode == FLIGHT_MODE.ASTRO) {
+                SetStage(FLIGHT_MODE.ASST_OFF);
 			} else {
-                SetStage(FLIGHT_STATE.ASTRO);
+                SetStage(FLIGHT_MODE.ASTRO);
 			}
         }
 
         if (Input.GetButtonDown("Astro Flight")) {
-            SetStage(FLIGHT_STATE.ASTRO);
+            SetStage(FLIGHT_MODE.ASTRO);
         }
 
         if (Input.GetButtonDown("Quantum Flight")) {
             if (allowQuantum) {
-                SetStage(FLIGHT_STATE.QUANTUM);
+                SetStage(FLIGHT_MODE.QUANTUM);
             } else {
                 Debug.Log("Too close for Quantum Flight");
             }
         }
+        
+        if (activeMode == FLIGHT_MODE.QUANTUM) {
+            shipRB.velocity = Vector3.Lerp(shipRB.velocity, transform.forward * quantumSpeed, 0.5f * Time.deltaTime);
+        }
 
+        // Cap velocity
         if (GetSpeed() > maxSpeed) {
-            shipRB.velocity = Vector3.Slerp(shipRB.velocity, shipRB.velocity.normalized * maxSpeed, 5f * Time.deltaTime);
+            shipRB.velocity = Vector3.Lerp(shipRB.velocity, shipRB.velocity.normalized * maxSpeed, 5f * Time.deltaTime);
         }
-
-        if (stage == FLIGHT_STATE.QUANTUM) {
-            shipRB.velocity = Vector3.Slerp(shipRB.velocity, transform.forward * quantumSpeed, 0.5f * Time.deltaTime);
-        }
-
-        if (GetThrust() == Vector3.zero) {
-            if (stage == FLIGHT_STATE.ASTRO) {
-                shipRB.drag = 1f;
-            } else {
-                shipRB.drag = 0f;
-            }
-        } 
 
         // Emergency drop
         for (int i = 0; i < planets.Length; i++) {
             distanceToAttractor = planets[i].GetDistanceToBody(position);
             if (distanceToAttractor <= 1000f) {
                 allowQuantum = false;
-                if (stage == ShipControl.FLIGHT_STATE.QUANTUM) {
-                    SetStage(ShipControl.FLIGHT_STATE.ASTRO);
+                if (activeMode == ShipControl.FLIGHT_MODE.QUANTUM) {
+                    SetStage(ShipControl.FLIGHT_MODE.ASTRO);
                     Debug.Log("Astro Flight engaged (saftey override)");
                 }
                 break;
@@ -117,7 +110,7 @@ public class ShipControl : MonoBehaviour {
         }
 
         // Engine Glow
-        if (stage == FLIGHT_STATE.QUANTUM) {
+        if (activeMode == FLIGHT_MODE.QUANTUM) {
             foreach (Light engineLight in engineLights) {
                 engineLight.intensity = Mathf.Lerp(engineLight.intensity, 8f, 1f * Time.deltaTime);
                 engineLight.color = Color.Lerp(engineLight.color, quantumEngineColor, 0.5f * Time.deltaTime);
@@ -130,7 +123,7 @@ public class ShipControl : MonoBehaviour {
         }
 
         // Quantum Partocles
-        if (stage == FLIGHT_STATE.QUANTUM) {
+        if (activeMode == FLIGHT_MODE.QUANTUM) {
             quantumParticles.Play();
         } else {
             quantumParticles.Stop();
@@ -139,14 +132,11 @@ public class ShipControl : MonoBehaviour {
         // Engine throttle animation
         currentEngineState = engineMesh.GetBlendShapeWeight(0);
 
-        if (stage == FLIGHT_STATE.QUANTUM) {
+        if (activeMode == FLIGHT_MODE.QUANTUM) {
             engineMesh.SetBlendShapeWeight(0, Mathf.Lerp(currentEngineState, 100f, 1f * Time.deltaTime));
         } else {
             engineMesh.SetBlendShapeWeight(0, Mathf.Lerp(currentEngineState, GetThrust().z * 100f, 1f * Time.deltaTime));
         }
-
-
-        
     }
 
     // Physics
@@ -157,45 +147,57 @@ public class ShipControl : MonoBehaviour {
 		netForce.z *= 2f; // Give primary thrusters more power than the rest
 		netTorque = GetTorque() * boosterPower;
 
-        if (stage > 0 && netTorque == Vector3.zero) {
+        if (activeMode > 0 && netTorque == Vector3.zero) {
             shipRB.angularDrag = 2f;
         } else {
             shipRB.angularDrag = 0f;
+        }
+
+        if (activeMode == FLIGHT_MODE.ASTRO && netForce == Vector3.zero) {
+            shipRB.drag = 1f;
+        } else {
+            shipRB.drag = 0f;
         }
 
         shipRB.AddRelativeForce(netForce);
         shipRB.AddRelativeTorque(netTorque);
     }
 
-    public void SetStage(FLIGHT_STATE stage) {
-        switch (stage) {
-            case FLIGHT_STATE.ASST_OFF: {
+    public void SetStage(FLIGHT_MODE activeMode) {
+        switch (activeMode) {
+            case FLIGHT_MODE.ASST_OFF: {
                 maxSpeed = quantumSpeed;
                 enginePower = 200f;
                 boosterPower = 100f;
                 shipGB.enabled = true;
+                shipRB.drag = 0f;
+                shipRB.angularDrag = 0f;
                 uiAsstOff.color = uiActive;
                 uiAstro.color = uiInactive;
                 uiQuantum.color = uiInactive;
                 Debug.Log("Flight Assist off");
                 break;
             }
-            case FLIGHT_STATE.ASTRO: {
+            case FLIGHT_MODE.ASTRO: {
                 maxSpeed = 50f;
                 enginePower = 200f;
                 boosterPower = 100f;
                 shipGB.enabled = false;
+                shipRB.drag = 1f;
+                shipRB.angularDrag = 2f;
                 uiAsstOff.color = uiInactive;
                 uiAstro.color = uiActive;
                 uiQuantum.color = uiInactive;
                 Debug.Log("Astro Flight engaged");
                 break;
             }
-            case FLIGHT_STATE.QUANTUM: {
+            case FLIGHT_MODE.QUANTUM: {
                 maxSpeed = quantumSpeed;
                 enginePower = 0f;
                 boosterPower = 30f;
                 shipGB.enabled = false;
+                shipRB.drag = 0f;
+                shipRB.angularDrag = 2f;
                 uiAsstOff.color = uiInactive;
                 uiAstro.color = uiInactive;
                 uiQuantum.color = uiActive;
@@ -206,7 +208,7 @@ public class ShipControl : MonoBehaviour {
             break;
         }
 
-        this.stage = stage;
+        this.activeMode = activeMode;
     }
 
     public Vector3 GetThrust() {
