@@ -31,8 +31,6 @@ public class Weapon : MonoBehaviour {
                 RaycastHit hit;
 
                 if (Physics.Raycast(laser, out hit)) {
-                    //Debug.Log("Hit " + hit.collider.gameObject);
-
                     if (hit.collider.gameObject.layer == LayerMask.NameToLayer("Enemy")) {
                         hit.collider.gameObject.GetComponent<EnemyAI>().Damage(weaponDamage);
                     }

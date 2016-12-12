@@ -40,9 +40,6 @@ public class ShipControl : MonoBehaviour {
     private float currentEngineState;
 
     void Start() {
-        Cursor.visible = false;
-		Cursor.lockState = CursorLockMode.Locked;
-
         // Set up ship
 		netForce = Vector3.zero;
 		netTorque = Vector3.zero;
