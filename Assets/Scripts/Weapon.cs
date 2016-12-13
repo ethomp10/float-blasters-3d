@@ -4,8 +4,8 @@ using System.Collections;
 public class Weapon : MonoBehaviour {
 
     // Public
-    public float fireRate = 60f;
-    public float weaponDamage = 5f;
+    public float fireRate = 100f;
+    public float weaponDamage = 10f;
     public Transform[] firePoints;
 
     // Private
