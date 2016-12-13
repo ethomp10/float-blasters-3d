@@ -52,7 +52,7 @@ public class EnemyAI : MonoBehaviour {
             Attack();
         }
 
-        HUD.transform.rotation = Quaternion.LookRotation(enemyToPlayer);
+        HUD.transform.rotation = player.transform.rotation;
     }
 
     void Attack () {
