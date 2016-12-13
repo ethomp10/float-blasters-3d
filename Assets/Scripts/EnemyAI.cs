@@ -6,6 +6,7 @@ public class EnemyAI : MonoBehaviour {
 
     // Public
     public float totalHitPoints = 100f;
+    public Canvas HUD;
     public Image healthBar;
 
     public float minTrackingDistance = 100f;
@@ -36,8 +37,11 @@ public class EnemyAI : MonoBehaviour {
 	
 	// Update is called once per frame
 	void Update () {
+        enemyToPlayer = player.position - transform.position;
+        distanceToPlayer = enemyToPlayer.magnitude;
+
         if (state != AI_STATE.DEAD) {
-            if ((player.position - transform.position).magnitude <= maxTrackingDistance) {
+            if (distanceToPlayer <= maxTrackingDistance) {
                 SetState(AI_STATE.ATTACK);
             } else {
                 SetState(AI_STATE.IDLE);
@@ -47,11 +51,11 @@ public class EnemyAI : MonoBehaviour {
         if (state == AI_STATE.ATTACK) {
             Attack();
         }
+
+        HUD.transform.rotation = Quaternion.LookRotation(enemyToPlayer);
     }
 
     void Attack () {
-        enemyToPlayer = player.position - transform.position;
-        distanceToPlayer = enemyToPlayer.magnitude;
         Quaternion targetRotation = Quaternion.LookRotation(enemyToPlayer);
 
         transform.rotation = Quaternion.Slerp(transform.rotation, targetRotation, 0.5f * Time.deltaTime);
@@ -65,6 +69,7 @@ public class EnemyAI : MonoBehaviour {
 
     void Die () {
         // Turn on gravity
+        HUD.enabled = false;
         enemyGB.enabled = true;
 
         // Turn off all ship lights
