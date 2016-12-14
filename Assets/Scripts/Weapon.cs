@@ -4,16 +4,26 @@ using System.Collections;
 public class Weapon : MonoBehaviour {
 
     // Public
+    public bool canFire = true;
     public float fireRate = 100f;
     public float weaponDamage = 10f;
     public Transform[] firePoints;
-
+    public LineRenderer[] crosshairs;
+    
     // Private
-    private bool canFire = true;
+    private AudioSource speaker;
+    private LineRenderer[] lasers;
+    private float laserWidth = 0.0f;
 
-	// Use this for initialization
-	void Start () {
-        //firePoints = GetComponentsInChildren<Transform>(false);
+    // Use this for initialization
+    void Start () {
+        speaker = GetComponent<AudioSource>();
+
+        // Assign each laser to the correct gun
+        lasers = new LineRenderer[firePoints.Length];
+        for (int i = 0; i < firePoints.Length; i++) {
+            lasers[i] = firePoints[i].GetComponent<LineRenderer>();
+        }
 	}
 
     // Update is called once per frame
@@ -21,32 +31,51 @@ public class Weapon : MonoBehaviour {
         if (Input.GetButtonDown("Fire")) {
             Fire();
         }
+
+        foreach(LineRenderer laser in lasers) {
+            laser.SetWidth(laserWidth, laserWidth);
+        }
+
+        if (laserWidth > 0) {
+            laserWidth -= 0.005f;
+        } else {
+            laserWidth = 0;
+        }
     }
 
     void Fire() {
 
         if (canFire) {
-            foreach (Transform firePoint in firePoints) {
-                Ray laser = new Ray(firePoint.position, firePoint.forward);
+            // Raycast
+            for (int i = 0; i < firePoints.Length; i++) {
+                Ray beam = new Ray(firePoints[i].position, firePoints[i].forward);
                 RaycastHit hit;
 
-                if (Physics.Raycast(laser, out hit)) {
+                if (Physics.Raycast(beam, out hit)) {
+
+                    Debug.DrawRay(beam.origin, beam.direction * 1000f, Color.red, 3f);
                     if (hit.collider.gameObject.layer == LayerMask.NameToLayer("Enemy")) {
                         hit.collider.gameObject.GetComponent<EnemyAI>().Damage(weaponDamage);
                     }
-                }
 
-                Debug.DrawRay(laser.origin, laser.direction * 1000f, Color.red, 3f);
+                    lasers[i].SetPosition(1, new Vector3(0f, 0f, hit.distance));
+                } else {
+                    lasers[i].SetPosition(1, new Vector3(0f, 0f, 400f));
+                }
             }
+            
+            // Draw lasers
+            laserWidth = 0.1f;
+
+            // Laser sound
+            speaker.Play();
             StartCoroutine(CapFireRate()); 
         }
     }
 
     IEnumerator CapFireRate() {
         canFire = false;
-
         yield return new WaitForSeconds(60f / fireRate);
-
         canFire = true;
     }
 }
