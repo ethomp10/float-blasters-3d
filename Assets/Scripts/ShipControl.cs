@@ -92,8 +92,8 @@ public class ShipControl : MonoBehaviour {
             distanceToAttractor = planets[i].GetDistanceToBody(position);
             if (distanceToAttractor <= 1000f) {
                 allowQuantum = false;
-                if (activeMode == ShipControl.FLIGHT_MODE.QUANTUM) {
-                    SetStage(ShipControl.FLIGHT_MODE.ASTRO);
+                if (activeMode == FLIGHT_MODE.QUANTUM) {
+                    SetStage(FLIGHT_MODE.ASTRO);
                     Debug.Log("Astro Flight engaged (saftey override)");
                 }
                 break;
