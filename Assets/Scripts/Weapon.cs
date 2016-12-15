@@ -58,6 +58,11 @@ public class Weapon : MonoBehaviour {
                         hit.collider.gameObject.GetComponent<EnemyAI>().Damage(weaponDamage);
                     }
 
+                    if (hit.collider.GetComponent<Rigidbody>()) {
+                        hit.collider.GetComponent<Rigidbody>().AddForceAtPosition(beam.direction * 500f, hit.point);
+                        Debug.Log(beam.direction);
+                    }
+
                     lasers[i].SetPosition(1, new Vector3(0f, 0f, hit.distance));
                 } else {
                     lasers[i].SetPosition(1, new Vector3(0f, 0f, 400f));
