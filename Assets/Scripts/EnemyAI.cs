@@ -70,6 +70,7 @@ public class EnemyAI : MonoBehaviour {
     void Die () {
         // Turn on gravity
         HUD.enabled = false;
+        GetComponent<AudioSource>().Stop();
         enemyGB.enabled = true;
 
         // Turn off all ship lights
