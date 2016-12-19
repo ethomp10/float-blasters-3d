@@ -147,18 +147,6 @@ public class ShipControl : MonoBehaviour {
 		netForce.z *= 2f; // Give primary thrusters more power than the rest
 		netTorque = GetTorque() * boosterPower;
 
-        if (activeMode > 0 && netTorque == Vector3.zero) {
-            shipRB.angularDrag = 2f;
-        } else {
-            shipRB.angularDrag = 0f;
-        }
-
-        if (activeMode == FLIGHT_MODE.ASTRO && netForce == Vector3.zero) {
-            shipRB.drag = 1f;
-        } else {
-            shipRB.drag = 0f;
-        }
-
         shipRB.AddRelativeForce(netForce);
         shipRB.AddRelativeTorque(netTorque);
     }
@@ -167,7 +155,7 @@ public class ShipControl : MonoBehaviour {
         switch (activeMode) {
             case FLIGHT_MODE.ASST_OFF: {
                 maxSpeed = quantumSpeed;
-                enginePower = 200f;
+                enginePower = 250f;
                 boosterPower = 100f;
                 shipGB.enabled = true;
                 shipRB.drag = 0f;
@@ -179,11 +167,11 @@ public class ShipControl : MonoBehaviour {
                 break;
             }
             case FLIGHT_MODE.ASTRO: {
-                maxSpeed = 50f;
-                enginePower = 200f;
+                maxSpeed = 10f;
+                enginePower = 100f;
                 boosterPower = 100f;
                 shipGB.enabled = false;
-                shipRB.drag = 1f;
+                shipRB.drag = 0.5f;
                 shipRB.angularDrag = 2f;
                 uiAsstOff.color = uiInactive;
                 uiAstro.color = uiActive;

@@ -12,8 +12,8 @@ public class GravityAttractor : MonoBehaviour {
     public void Attract(Transform body) {
 		attractorToBody = GetVectorToBody(body);
         radius = GetDistanceToBody(body);
-        gravity = (-attractorToBody.normalized * (gravityStrength * 50f / radius));
-        body.GetComponent<Rigidbody>().AddForce(gravity);
+        gravity = (-attractorToBody.normalized * (gravityStrength * 10f / radius));
+        body.GetComponent<Rigidbody>().AddForce(gravity, ForceMode.Acceleration);
     }
 
 	public void SetBodyOrientation(Transform body) {
