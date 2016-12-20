@@ -77,7 +77,7 @@ public class Weapon : MonoBehaviour {
         }
     }
 
-    IEnumerator CapFireRate() {
+    public IEnumerator CapFireRate() {
         canFire = false;
         yield return new WaitForSeconds(60f / fireRate);
         canFire = true;

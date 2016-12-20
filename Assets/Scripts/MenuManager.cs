@@ -52,7 +52,7 @@ public class MenuManager : MonoBehaviour {
     }
 
     public void ResumeGame() {
-        playerWeapon.canFire = true;
+        playerWeapon.StartCoroutine(playerWeapon.CapFireRate());
         foreach (LineRenderer crosshair in playerWeapon.crosshairs) {
             crosshair.enabled = true;
         }
@@ -66,9 +66,7 @@ public class MenuManager : MonoBehaviour {
     }
 
     public void QuitGame() {
-#if UNITY_EDITOR
-        UnityEditor.EditorApplication.isPlaying = false;
-#endif
+        StopAllCoroutines();
         Application.Quit();
     }
 }
