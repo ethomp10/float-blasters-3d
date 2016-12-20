@@ -26,17 +26,17 @@ public class EnemyAI : MonoBehaviour {
     private Light[] lights;
 
     // Use this for initialization
-    void Start () {
+    void Start() {
         hitPoints = totalHitPoints;
 
         player = GameObject.FindGameObjectWithTag("Player").transform;
         enemyRB = GetComponent<Rigidbody>();
         enemyGB = GetComponent<GravityBody>();
         lights = GetComponentsInChildren<Light>();
-	}
-	
-	// Update is called once per frame
-	void Update () {
+    }
+
+    // Update is called once per frame
+    void Update() {
         enemyToPlayer = player.position - transform.position;
         distanceToPlayer = enemyToPlayer.magnitude;
 
@@ -55,11 +55,11 @@ public class EnemyAI : MonoBehaviour {
         HUD.transform.rotation = player.transform.rotation;
     }
 
-    void Attack () {
+    void Attack() {
         Quaternion targetRotation = Quaternion.LookRotation(enemyToPlayer);
 
         transform.rotation = Quaternion.Slerp(transform.rotation, targetRotation, 0.5f * Time.deltaTime);
-        
+
         if (distanceToPlayer >= minTrackingDistance) {
             enemyRB.velocity = Vector3.Lerp(enemyRB.velocity, transform.forward * moveSpeed, 0.5f * Time.deltaTime);
         } else { // If the player is close, stop moving towards them
@@ -67,7 +67,7 @@ public class EnemyAI : MonoBehaviour {
         }
     }
 
-    void Die () {
+    void Die() {
         // Turn on gravity
         HUD.enabled = false;
         GetComponent<AudioSource>().Stop();
@@ -85,7 +85,7 @@ public class EnemyAI : MonoBehaviour {
         Destroy(gameObject, 10f);
     }
 
-    void SetState (AI_STATE nextState) {
+    void SetState(AI_STATE nextState) {
         switch (nextState) {
             case AI_STATE.IDLE:
                 state = nextState;
@@ -100,14 +100,14 @@ public class EnemyAI : MonoBehaviour {
         }
     }
 
-    public void Damage (float damage) {
+    public void Damage(float damage) {
         if (hitPoints > 0f) {
             if (hitPoints - damage <= 0f) {
                 hitPoints = 0f;
                 SetState(AI_STATE.DEAD);
             } else {
                 hitPoints -= damage;
-            } 
+            }
         }
 
         healthBar.fillAmount = hitPoints / totalHitPoints;

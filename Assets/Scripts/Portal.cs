@@ -8,13 +8,13 @@ public class Portal : MonoBehaviour {
 
     private Transform portalTransform;
     private bool grow;
-	
-	void Start () {
+
+    void Start() {
         portalTransform = GetComponent<Transform>();
         grow = true;
-	}
-	
-	void Update () {
+    }
+
+    void Update() {
         if (grow) {
             portalTransform.localScale = Vector3.Slerp(portalTransform.localScale, portalTransform.localScale * 2f, 0.2f * Time.deltaTime);
             if (portalTransform.localScale.magnitude >= maxScale) {

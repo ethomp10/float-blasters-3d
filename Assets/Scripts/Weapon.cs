@@ -9,14 +9,14 @@ public class Weapon : MonoBehaviour {
     public float weaponDamage = 10f;
     public Transform[] firePoints;
     public LineRenderer[] crosshairs;
-    
+
     // Private
     private AudioSource speaker;
     private LineRenderer[] lasers;
     private float laserWidth = 0.0f;
 
     // Use this for initialization
-    void Start () {
+    void Start() {
         speaker = GetComponent<AudioSource>();
 
         // Assign each laser to the correct gun
@@ -24,7 +24,7 @@ public class Weapon : MonoBehaviour {
         for (int i = 0; i < firePoints.Length; i++) {
             lasers[i] = firePoints[i].GetComponent<LineRenderer>();
         }
-	}
+    }
 
     // Update is called once per frame
     void Update() {
@@ -32,7 +32,7 @@ public class Weapon : MonoBehaviour {
             Fire();
         }
 
-        foreach(LineRenderer laser in lasers) {
+        foreach (LineRenderer laser in lasers) {
             laser.SetWidth(laserWidth, laserWidth);
         }
 
@@ -60,7 +60,6 @@ public class Weapon : MonoBehaviour {
 
                     if (hit.collider.GetComponent<Rigidbody>()) {
                         hit.collider.GetComponent<Rigidbody>().AddForceAtPosition(beam.direction * 500f, hit.point);
-                        Debug.Log(beam.direction);
                     }
 
                     lasers[i].SetPosition(1, new Vector3(0f, 0f, hit.distance));
@@ -68,13 +67,13 @@ public class Weapon : MonoBehaviour {
                     lasers[i].SetPosition(1, new Vector3(0f, 0f, 400f));
                 }
             }
-            
+
             // Draw lasers
             laserWidth = 0.1f;
 
             // Laser sound
             speaker.Play();
-            StartCoroutine(CapFireRate()); 
+            StartCoroutine(CapFireRate());
         }
     }
 

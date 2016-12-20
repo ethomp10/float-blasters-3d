@@ -30,14 +30,14 @@ public class MenuManager : MonoBehaviour {
     }
 
     // Button functions
-	public void LoadLevel (string levelName) {
+    public void LoadLevel(string levelName) {
         SceneManager.LoadScene(levelName);
         FindPlayerWeapon();
         Cursor.visible = false;
         Cursor.lockState = CursorLockMode.Locked;
     }
-    
-    public void PauseGame () {
+
+    public void PauseGame() {
         Time.timeScale = 0f;
         paused = true;
 
@@ -51,7 +51,7 @@ public class MenuManager : MonoBehaviour {
         Cursor.lockState = CursorLockMode.None;
     }
 
-    public void ResumeGame () {
+    public void ResumeGame() {
         playerWeapon.canFire = true;
         foreach (LineRenderer crosshair in playerWeapon.crosshairs) {
             crosshair.enabled = true;
@@ -65,10 +65,10 @@ public class MenuManager : MonoBehaviour {
         paused = false;
     }
 
-    public void QuitGame () {
-        #if UNITY_EDITOR
+    public void QuitGame() {
+#if UNITY_EDITOR
         UnityEditor.EditorApplication.isPlaying = false;
-        #endif
+#endif
         Application.Quit();
     }
 }
