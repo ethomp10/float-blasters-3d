@@ -37,7 +37,7 @@ public class Weapon : MonoBehaviour {
         }
 
         if (laserWidth > 0) {
-            laserWidth -= 0.005f;
+            laserWidth -= 0.5f * Time.deltaTime;
         } else {
             laserWidth = 0;
         }

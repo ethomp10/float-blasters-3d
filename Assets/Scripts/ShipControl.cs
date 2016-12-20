@@ -1,12 +1,13 @@
 ﻿using UnityEngine;
 using UnityEngine.UI;
 using System.Collections;
+using System;
 
 public class ShipControl : MonoBehaviour {
 
     // Public Variables
-    public float defaultPower = 250f;
-    public float hoverPower = 100f;
+    public float enginePower = 2500;
+    public float boosterPower = 1000f;
     public float astroSpeed = 200f;
     public float quantumSpeed = 2000f;
     public float maxRotationSpeed = 1.5f;
@@ -15,6 +16,7 @@ public class ShipControl : MonoBehaviour {
     public Color defaultEngineColour = new Color(0f, 1f, 1f);
     public Color quantumEngineColour = new Color(0f, 1f, 0f);
 
+    public CanvasGroup flightModePanel;
     public Color uiActive = new Color(0f, 1f, 1f);
     public Color uiInactive = new Color(50 / 255f, 50 / 255f, 50 / 255f);
     public Text uiAsstOff;
@@ -27,9 +29,11 @@ public class ShipControl : MonoBehaviour {
     public FLIGHT_MODE currentMode = FLIGHT_MODE.ASST_OFF;
 
     // Private Variables
-    private float enginePower; // Affects net force
-    private float boosterPower; // Affects net torque
-    private float maxSpeed;
+    private float currentEnginePower; // Affects net force
+    private float currentBoosterPower; // Affects net torque
+    private float speedCap;
+    private float capRate = 1f;
+    private float throttle;
 
     private Vector3 netForce;
     private Vector3 netTorque;
@@ -40,13 +44,21 @@ public class ShipControl : MonoBehaviour {
     private Rigidbody shipRB;
     private GravityBody shipGB;
     private GravityAttractor[] planets;
+
     private ParticleSystem quantumParticles;
     private SkinnedMeshRenderer engineMesh;
     private float currentEngineAperture;
 
     private FLIGHT_MODE activeMode;
+    private Coroutine uiFade = null;
 
     void Start() {
+
+        // TODO: Remove this later
+        /////////////////////////////////////////
+        Cursor.lockState = CursorLockMode.Locked;
+        /////////////////////////////////////////
+
         // Set up ship
         shipRB = GetComponent<Rigidbody>();
         shipRB.maxAngularVelocity = maxRotationSpeed;
@@ -68,8 +80,8 @@ public class ShipControl : MonoBehaviour {
 
     void Update() {
         // Input
-        netForce = GetForce() * enginePower;
-        netTorque = GetTorque() * boosterPower;
+        netForce = GetForce() * currentEnginePower;
+        netTorque = GetTorque() * currentBoosterPower;
 
         if (Input.GetButtonDown("Toggle Flight Assist")) {
             if (currentMode == FLIGHT_MODE.ASST_OFF) {
@@ -116,8 +128,8 @@ public class ShipControl : MonoBehaviour {
         }
 
         // Cap velocity
-        if (GetSpeed() > maxSpeed) {
-            shipRB.velocity = Vector3.Lerp(shipRB.velocity, shipRB.velocity.normalized, Time.deltaTime);
+        if (GetSpeed() > speedCap) {
+            shipRB.velocity = Vector3.Lerp(shipRB.velocity, shipRB.velocity.normalized, capRate * Time.deltaTime);
         }
 
         // Check distance to planets
@@ -135,40 +147,43 @@ public class ShipControl : MonoBehaviour {
     }
 
     void AssistOff() {
-        SyncThrottleLights(3f, 1f, defaultEngineColour);
-        SyncThrottleAperture(GetForce().z * 100f);
+        SyncEngineLights(3f, 1f, defaultEngineColour);
+        SyncEngineAperture(GetForce().z * 100f);
         netForce.z *= 2f;
     }
 
     void Hover() {
-        SyncThrottleLights(1f, 1f, defaultEngineColour);
-        SyncThrottleAperture(GetForce().z * 50f);
+        SyncEngineLights(1f, 1f, defaultEngineColour);
+        SyncEngineAperture(GetForce().z * 50f);
     }
 
     void Astro() {
-        SyncThrottleLights(3f, 3f, defaultEngineColour);
-        SyncThrottleAperture(maxSpeed / astroSpeed * 100f);
+        throttle = speedCap / astroSpeed;
+        SyncEngineLights(0f, throttle * 3f + 1, defaultEngineColour);
+        SyncEngineAperture(throttle * 100f);
 
         // Increase/decrease throttle
         if (GetForce().z > 0f) {
-            if (maxSpeed < astroSpeed) {
-                maxSpeed += GetForce().z;
+            if (speedCap < astroSpeed) {
+                speedCap += GetForce().z;
             } else {
-                maxSpeed = astroSpeed;
+                speedCap = astroSpeed;
             }
         } else if (GetForce().z < 0f) {
-            if (maxSpeed > 10f) {
-                maxSpeed += GetForce().z;
+            if (speedCap > astroSpeed * -0.5f) {
+                speedCap += GetForce().z;
             } else {
-                maxSpeed = 10f;
+                speedCap = 10f;
             }
         }
 
-        shipRB.velocity = Vector3.Lerp(shipRB.velocity, transform.forward * maxSpeed, 0.8f * Time.deltaTime);
+        shipRB.velocity = Vector3.Lerp(shipRB.velocity, transform.forward * speedCap, 0.8f * Time.deltaTime);
     }
 
     void Quantum() {
-        SyncThrottleLights(0f, 8f, quantumEngineColour);
+        SyncEngineLights(0f, 8f, quantumEngineColour);
+        SyncEngineAperture(100f);
+
         shipRB.velocity = Vector3.Lerp(shipRB.velocity, transform.forward * quantumSpeed, 0.5f * Time.deltaTime);
 
         if (!allowQuantum) {
@@ -183,11 +198,18 @@ public class ShipControl : MonoBehaviour {
     }
 
     void SetStage(FLIGHT_MODE nextMode) {
+
+        // Show flight mode panel
+        if (uiFade != null) {
+            StopCoroutine(uiFade);
+        }
+        uiFade = StartCoroutine(ShowPanel());
+
         switch (nextMode) {
             case FLIGHT_MODE.ASST_OFF:
-                maxSpeed = quantumSpeed;
-                enginePower = defaultPower;
-                boosterPower = 100f;
+                speedCap = quantumSpeed;
+                currentEnginePower = enginePower;
+                currentBoosterPower = boosterPower;
 
                 shipGB.enabled = true;
                 shipRB.drag = 0f;
@@ -202,9 +224,10 @@ public class ShipControl : MonoBehaviour {
                 Debug.Log("Flight Assist off");
                 break;
             case FLIGHT_MODE.HOVER:
-                maxSpeed = 10f;
-                enginePower = hoverPower;
-                boosterPower = 100f;
+                speedCap = 10f;
+                if (capRate != 1f) StartCoroutine(DropCapRate());
+                currentEnginePower = enginePower * 0.5f;
+                currentBoosterPower = boosterPower;
 
                 shipGB.enabled = false;
                 shipRB.drag = 1f;
@@ -219,9 +242,10 @@ public class ShipControl : MonoBehaviour {
                 Debug.Log("Hover Flight engaged");
                 break;
             case FLIGHT_MODE.ASTRO:
-                maxSpeed = 10f;
-                enginePower = 0f;
-                boosterPower = 100f;
+                speedCap = 50f;
+                if (capRate != 1f) StartCoroutine(DropCapRate());
+                currentEnginePower = 0f;
+                currentBoosterPower = boosterPower;
 
                 shipGB.enabled = false;
                 shipRB.drag = 0f;
@@ -236,9 +260,10 @@ public class ShipControl : MonoBehaviour {
                 Debug.Log("Astro Flight engaged");
                 break;
             case FLIGHT_MODE.QUANTUM:
-                maxSpeed = quantumSpeed;
-                enginePower = 0f;
-                boosterPower = 30f;
+                speedCap = quantumSpeed;
+                capRate = 5f;
+                currentEnginePower = 0f;
+                currentBoosterPower = boosterPower * 0.33f;
 
                 shipGB.enabled = false;
                 shipRB.drag = 0f;
@@ -283,16 +308,31 @@ public class ShipControl : MonoBehaviour {
     }
 
     // Engine lights
-    void SyncThrottleLights(float intensity, float idle, Color colour) {
+    void SyncEngineLights(float thrustIntensity, float offset, Color colour) {
         foreach (Light engineLight in engineLights) {
-            engineLight.intensity = Mathf.Lerp(engineLight.intensity, GetForce().z * intensity + idle, 0.5f * Time.deltaTime);
-            engineLight.color = Color.Lerp(engineLight.color, defaultEngineColour, 0.5f * Time.deltaTime);
+            engineLight.intensity = Mathf.Lerp(engineLight.intensity, GetForce().z * thrustIntensity + offset, 0.5f * Time.deltaTime);
+            engineLight.color = Color.Lerp(engineLight.color, colour, 0.5f * Time.deltaTime);
         }
     }
 
     // Engine aperture
-    void SyncThrottleAperture(float size) {
+    void SyncEngineAperture(float size) {
         currentEngineAperture = engineMesh.GetBlendShapeWeight(0);
         engineMesh.SetBlendShapeWeight(0, Mathf.Lerp(currentEngineAperture, size, 1f * Time.deltaTime));
+    }
+
+    IEnumerator ShowPanel() {
+        flightModePanel.alpha = 1f;
+        yield return new WaitForSeconds(3f);
+
+        while (flightModePanel.alpha > 0f) {
+            flightModePanel.alpha -= 0.8f * Time.deltaTime;
+            yield return null;
+        }
+    }
+
+    IEnumerator DropCapRate() {
+        yield return new WaitForSeconds(1f);
+        capRate = 1f;
     }
 }
