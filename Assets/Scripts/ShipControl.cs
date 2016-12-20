@@ -168,11 +168,12 @@ public class ShipControl : MonoBehaviour {
     }
 
     void Quantum() {
+        SyncThrottleLights(0f, 8f, quantumEngineColour);
+        shipRB.velocity = Vector3.Lerp(shipRB.velocity, transform.forward * quantumSpeed, 0.5f * Time.deltaTime);
+
         if (!allowQuantum) {
             SetStage(FLIGHT_MODE.HOVER); // Emergency drop
         }
-        SyncThrottleLights(0f, 8f, quantumEngineColour);
-        shipRB.velocity = Vector3.Lerp(shipRB.velocity, transform.forward * quantumSpeed, 0.5f * Time.deltaTime);
     }
 
     // Physics
