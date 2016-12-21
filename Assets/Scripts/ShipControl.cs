@@ -90,6 +90,7 @@ public class ShipControl : MonoBehaviour {
         // Input
         netForce = GetForce() * currentEnginePower;
         netTorque = GetTorque() * currentBoosterPower;
+        netTorque.y *= 0.33f; // Slow down yaw
 
         if (Input.GetButtonDown("Toggle Flight Assist")) {
             if (currentMode == FLIGHT_MODE.ASST_OFF) {
