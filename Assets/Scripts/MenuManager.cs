@@ -6,11 +6,12 @@ public class MenuManager : MonoBehaviour {
 
     private bool paused = false;
     private Canvas menu;
+    private Canvas playerHUD;
     private Weapon playerWeapon;
 
     void Start() {
         menu = GetComponentInParent<Canvas>();
-        FindPlayerWeapon();
+        FindPlayer();
     }
 
     void Update() {
@@ -23,16 +24,17 @@ public class MenuManager : MonoBehaviour {
         }
     }
 
-    void FindPlayerWeapon() {
+    void FindPlayer() {
         if (SceneManager.GetActiveScene().name == "BoulderSystem") {
             playerWeapon = GameObject.FindGameObjectWithTag("PlayerWeapon").GetComponent<Weapon>();
+            playerHUD = GameObject.FindGameObjectWithTag("PlayerHUD").GetComponent<Canvas>();
         }
     }
 
     // Button functions
     public void LoadLevel(string levelName) {
         SceneManager.LoadScene(levelName);
-        FindPlayerWeapon();
+        FindPlayer();
         Cursor.visible = false;
         Cursor.lockState = CursorLockMode.Locked;
     }
@@ -41,6 +43,7 @@ public class MenuManager : MonoBehaviour {
         Time.timeScale = 0f;
         paused = true;
 
+        playerHUD.enabled = false;
         playerWeapon.canFire = false;
         foreach (LineRenderer crosshair in playerWeapon.crosshairs) {
             crosshair.enabled = false;
@@ -57,6 +60,7 @@ public class MenuManager : MonoBehaviour {
             crosshair.enabled = true;
         }
 
+        playerHUD.enabled = true;
         menu.enabled = false;
         Cursor.visible = false;
         Cursor.lockState = CursorLockMode.Locked;

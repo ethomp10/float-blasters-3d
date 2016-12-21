@@ -16,6 +16,8 @@ public class ShipControl : MonoBehaviour {
     public Color defaultEngineColour = new Color(0f, 1f, 1f);
     public Color quantumEngineColour = new Color(0f, 1f, 0f);
 
+    public CanvasGroup healthPanel;
+    public CanvasGroup throttlePanel;
     public CanvasGroup flightModePanel;
     public Color uiActive = new Color(0f, 1f, 1f);
     public Color uiInactive = new Color(50 / 255f, 50 / 255f, 50 / 255f);
@@ -24,6 +26,8 @@ public class ShipControl : MonoBehaviour {
     public Text uiAstro;
     public Text uiQuantum;
     public Image uiQuantumLED;
+    public Image uiHealth;
+    public Image uiThrottle;
 
     public enum FLIGHT_MODE { ASST_OFF, HOVER, ASTRO, QUANTUM };
     public FLIGHT_MODE currentMode = FLIGHT_MODE.ASST_OFF;
@@ -50,7 +54,9 @@ public class ShipControl : MonoBehaviour {
     private float currentEngineAperture;
 
     private FLIGHT_MODE activeMode;
-    private Coroutine uiFade = null;
+    private Coroutine healthFade = null;
+    private Coroutine throttleFade = null;
+    private Coroutine flightModeFade = null;
 
     void Start() {
 
@@ -76,6 +82,8 @@ public class ShipControl : MonoBehaviour {
         } else {
             activeMode = currentMode;
         }
+
+        healthFade = StartCoroutine(ShowHealth());
     }
 
     void Update() {
@@ -147,9 +155,10 @@ public class ShipControl : MonoBehaviour {
     }
 
     void AssistOff() {
+        netForce.z *= 2f;
+
         SyncEngineLights(3f, 1f, defaultEngineColour);
         SyncEngineAperture(GetForce().z * 100f);
-        netForce.z *= 2f;
     }
 
     void Hover() {
@@ -158,37 +167,62 @@ public class ShipControl : MonoBehaviour {
     }
 
     void Astro() {
+        netForce.z = 0f;
         throttle = speedCap / astroSpeed;
-        SyncEngineLights(0f, throttle * 3f + 1, defaultEngineColour);
-        SyncEngineAperture(throttle * 100f);
 
         // Increase/decrease throttle
         if (GetForce().z > 0f) {
+            // Show throttle UI
+            if (throttleFade != null) {
+                StopCoroutine(throttleFade);
+            }
+            throttleFade = StartCoroutine(ShowThrottle());
+            // Adjust speed
             if (speedCap < astroSpeed) {
                 speedCap += GetForce().z;
             } else {
                 speedCap = astroSpeed;
             }
         } else if (GetForce().z < 0f) {
+            // Show throttle UI
+            if (throttleFade != null) {
+                StopCoroutine(throttleFade);
+            }
+            throttleFade = StartCoroutine(ShowThrottle());
+            // Adjust speed
             if (speedCap > astroSpeed * -0.5f) {
                 speedCap += GetForce().z;
             } else {
-                speedCap = 10f;
+                speedCap = astroSpeed * -0.5f;
             }
         }
-
         shipRB.velocity = Vector3.Lerp(shipRB.velocity, transform.forward * speedCap, 0.8f * Time.deltaTime);
+
+        // Update visual effects
+        SyncEngineLights(0f, throttle * 3f + 1, defaultEngineColour);
+        SyncEngineAperture(throttle * 100f);
+
+        // Update UI
+        if (throttle > 0) {
+            uiThrottle.color = Color.green;
+            uiThrottle.fillAmount = throttle;
+        } else {
+            uiThrottle.color = Color.red;
+            uiThrottle.fillAmount = -throttle;
+        }
     }
 
     void Quantum() {
-        SyncEngineLights(0f, 8f, quantumEngineColour);
-        SyncEngineAperture(100f);
+        // Emergency drop
+        if (!allowQuantum) {
+            SetStage(FLIGHT_MODE.HOVER);
+        }
 
         shipRB.velocity = Vector3.Lerp(shipRB.velocity, transform.forward * quantumSpeed, 0.5f * Time.deltaTime);
 
-        if (!allowQuantum) {
-            SetStage(FLIGHT_MODE.HOVER); // Emergency drop
-        }
+        // Update visual effects
+        SyncEngineLights(0f, 8f, quantumEngineColour);
+        SyncEngineAperture(100f);
     }
 
     // Physics
@@ -198,12 +232,11 @@ public class ShipControl : MonoBehaviour {
     }
 
     void SetStage(FLIGHT_MODE nextMode) {
-
         // Show flight mode panel
-        if (uiFade != null) {
-            StopCoroutine(uiFade);
+        if (flightModeFade != null) {
+            StopCoroutine(flightModeFade);
         }
-        uiFade = StartCoroutine(ShowPanel());
+        flightModeFade = StartCoroutine(ShowFlightMode());
 
         switch (nextMode) {
             case FLIGHT_MODE.ASST_OFF:
@@ -220,6 +253,7 @@ public class ShipControl : MonoBehaviour {
                 uiHover.color = uiInactive;
                 uiAstro.color = uiInactive;
                 uiQuantum.color = uiInactive;
+                throttlePanel.alpha = 0f;
 
                 Debug.Log("Flight Assist off");
                 break;
@@ -238,13 +272,14 @@ public class ShipControl : MonoBehaviour {
                 uiHover.color = uiActive;
                 uiAstro.color = uiInactive;
                 uiQuantum.color = uiInactive;
+                throttlePanel.alpha = 0f;
 
                 Debug.Log("Hover Flight engaged");
                 break;
             case FLIGHT_MODE.ASTRO:
                 speedCap = 50f;
                 if (capRate != 1f) StartCoroutine(DropCapRate());
-                currentEnginePower = 0f;
+                currentEnginePower = enginePower;
                 currentBoosterPower = boosterPower;
 
                 shipGB.enabled = false;
@@ -256,6 +291,10 @@ public class ShipControl : MonoBehaviour {
                 uiHover.color = uiInactive;
                 uiAstro.color = uiActive;
                 uiQuantum.color = uiInactive;
+                if (throttleFade != null) {
+                    StopCoroutine(throttleFade);
+                }
+                throttleFade = StartCoroutine(ShowThrottle());
 
                 Debug.Log("Astro Flight engaged");
                 break;
@@ -274,6 +313,7 @@ public class ShipControl : MonoBehaviour {
                 uiHover.color = uiInactive;
                 uiAstro.color = uiInactive;
                 uiQuantum.color = uiActive;
+                throttlePanel.alpha = 0f;
 
                 Debug.Log("Quantum Flight engaged");
                 break;
@@ -321,7 +361,27 @@ public class ShipControl : MonoBehaviour {
         engineMesh.SetBlendShapeWeight(0, Mathf.Lerp(currentEngineAperture, size, 1f * Time.deltaTime));
     }
 
-    IEnumerator ShowPanel() {
+    IEnumerator ShowHealth() {
+        healthPanel.alpha = 1f;
+        yield return new WaitForSeconds(3f);
+
+        while (healthPanel.alpha > 0f) {
+            healthPanel.alpha -= 0.8f * Time.deltaTime;
+            yield return null;
+        }
+    }
+
+    IEnumerator ShowThrottle() {
+        throttlePanel.alpha = 1f;
+        yield return new WaitForSeconds(3f);
+
+        while (throttlePanel.alpha > 0f) {
+            throttlePanel.alpha -= 0.8f * Time.deltaTime;
+            yield return null;
+        }
+    }
+
+    IEnumerator ShowFlightMode() {
         flightModePanel.alpha = 1f;
         yield return new WaitForSeconds(3f);
 

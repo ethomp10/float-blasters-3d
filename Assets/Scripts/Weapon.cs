@@ -52,7 +52,6 @@ public class Weapon : MonoBehaviour {
                 RaycastHit hit;
 
                 if (Physics.Raycast(beam, out hit)) {
-
                     Debug.DrawRay(beam.origin, beam.direction * 1000f, Color.red, 3f);
                     if (hit.collider.gameObject.layer == LayerMask.NameToLayer("Enemy")) {
                         hit.collider.gameObject.GetComponent<EnemyAI>().Damage(weaponDamage);
@@ -62,7 +61,11 @@ public class Weapon : MonoBehaviour {
                         hit.collider.GetComponent<Rigidbody>().AddForceAtPosition(beam.direction * 500f, hit.point);
                     }
 
-                    lasers[i].SetPosition(1, new Vector3(0f, 0f, hit.distance));
+                    if (hit.distance <= 400f) {
+                        lasers[i].SetPosition(1, new Vector3(0f, 0f, hit.distance));
+                    } else {
+                        lasers[i].SetPosition(1, new Vector3(0f, 0f, 400f));
+                    }
                 } else {
                     lasers[i].SetPosition(1, new Vector3(0f, 0f, 400f));
                 }
