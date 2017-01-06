@@ -2,114 +2,128 @@
 using System.Collections;
 using UnityEngine.UI;
 
-public class EnemyAI : MonoBehaviour {
+public class EnemyAI : MonoBehaviour
+{
 
-    // Public
-    public float totalHitPoints = 100f;
-    public Canvas HUD;
-    public Image healthBar;
+	// Public
+	public float totalHitPoints = 100f;
+	public Canvas HUD;
+	public Image healthBar;
 
-    public float minTrackingDistance = 100f;
-    public float maxTrackingDistance = 1000f;
-    public float moveSpeed = 45f;
+	public float minTrackingDistance = 100f;
+	public float maxTrackingDistance = 1000f;
+	public float moveSpeed = 45f;
 
-    public enum AI_STATE { IDLE, ATTACK, DEAD };
-    public AI_STATE state = AI_STATE.IDLE;
+	public enum AI_STATE
+	{
+		IDLE,
+		ATTACK,
+		DEAD}
 
-    // Private
-    private float hitPoints;
-    private GravityBody enemyGB;
-    private Transform player;
-    private Vector3 enemyToPlayer;
-    private float distanceToPlayer;
-    private Rigidbody enemyRB;
-    private Light[] lights;
+	;
 
-    // Use this for initialization
-    void Start() {
-        hitPoints = totalHitPoints;
+	public AI_STATE state = AI_STATE.IDLE;
 
-        player = GameObject.FindGameObjectWithTag("Player").transform;
-        enemyRB = GetComponent<Rigidbody>();
-        enemyGB = GetComponent<GravityBody>();
-        lights = GetComponentsInChildren<Light>();
-    }
+	// Private
+	private float hitPoints;
+	private GravityBody enemyGB;
+	private Transform player;
+	private Vector3 enemyToPlayer;
+	private float distanceToPlayer;
+	private Rigidbody enemyRB;
+	private Light[] lights;
 
-    // Update is called once per frame
-    void Update() {
-        enemyToPlayer = player.position - transform.position;
-        distanceToPlayer = enemyToPlayer.magnitude;
+	// Use this for initialization
+	void Start ()
+	{
+		hitPoints = totalHitPoints;
 
-        if (state != AI_STATE.DEAD) {
-            if (distanceToPlayer <= maxTrackingDistance) {
-                SetState(AI_STATE.ATTACK);
-            } else {
-                SetState(AI_STATE.IDLE);
-            }
-        }
+		player = GameObject.FindGameObjectWithTag ("Player").transform;
+		enemyRB = GetComponent<Rigidbody> ();
+		enemyGB = GetComponent<GravityBody> ();
+		lights = GetComponentsInChildren<Light> ();
+	}
 
-        if (state == AI_STATE.ATTACK) {
-            Attack();
-        }
+	// Update is called once per frame
+	void Update ()
+	{
+		enemyToPlayer = player.position - transform.position;
+		distanceToPlayer = enemyToPlayer.magnitude;
 
-        HUD.transform.rotation = player.transform.rotation;
-    }
+		if (state != AI_STATE.DEAD) {
+			if (distanceToPlayer <= maxTrackingDistance) {
+				SetState (AI_STATE.ATTACK);
+			} else {
+				SetState (AI_STATE.IDLE);
+			}
+		}
 
-    void Attack() {
-        Quaternion targetRotation = Quaternion.LookRotation(enemyToPlayer);
+		if (state == AI_STATE.ATTACK) {
+			Attack ();
+		}
 
-        transform.rotation = Quaternion.Slerp(transform.rotation, targetRotation, 0.5f * Time.deltaTime);
+		HUD.transform.rotation = player.transform.rotation;
+	}
 
-        if (distanceToPlayer >= minTrackingDistance) {
-            enemyRB.velocity = Vector3.Lerp(enemyRB.velocity, transform.forward * moveSpeed, 0.5f * Time.deltaTime);
-        } else { // If the player is close, stop moving towards them
-            enemyRB.velocity = Vector3.Lerp(enemyRB.velocity, Vector3.zero, 0.5f * Time.deltaTime);
-        }
-    }
+	void Attack ()
+	{
+		Quaternion targetRotation = Quaternion.LookRotation (enemyToPlayer);
 
-    void Die() {
-        // Turn on gravity
-        HUD.enabled = false;
-        GetComponent<AudioSource>().Stop();
-        enemyGB.enabled = true;
+		transform.rotation = Quaternion.Slerp (transform.rotation, targetRotation, 0.5f * Time.deltaTime);
 
-        // Turn off all ship lights
-        foreach (Light light in lights) {
-            light.intensity = 0f;
-        }
+		if (distanceToPlayer >= minTrackingDistance) {
+			enemyRB.velocity = Vector3.Lerp (enemyRB.velocity, transform.forward * moveSpeed, 0.5f * Time.deltaTime);
+		} else { // If the player is close, stop moving towards them
+			enemyRB.velocity = Vector3.Lerp (enemyRB.velocity, Vector3.zero, 0.5f * Time.deltaTime);
+		}
+	}
 
-        float spinForce = Random.Range(-80f, 80f);
+	void Die ()
+	{
+		// Turn on gravity
+		HUD.enabled = false;
+		GetComponent<AudioSource> ().Stop ();
+		enemyGB.enabled = true;
 
-        enemyRB.AddRelativeTorque(new Vector3(0f, 0f, spinForce), ForceMode.Impulse);
+		// Turn off all ship lights
+		foreach (Light light in lights) {
+			light.intensity = 0f;
+		}
 
-        Destroy(gameObject, 10f);
-    }
+		float spinForce = Random.Range (-80f, 80f);
 
-    void SetState(AI_STATE nextState) {
-        switch (nextState) {
-            case AI_STATE.IDLE:
-                state = nextState;
-                break;
-            case AI_STATE.ATTACK:
-                state = nextState;
-                break;
-            case AI_STATE.DEAD:
-                Die();
-                state = nextState;
-                break;
-        }
-    }
+		enemyRB.AddRelativeTorque (new Vector3 (0f, 0f, spinForce), ForceMode.Impulse);
 
-    public void Damage(float damage) {
-        if (hitPoints > 0f) {
-            if (hitPoints - damage <= 0f) {
-                hitPoints = 0f;
-                SetState(AI_STATE.DEAD);
-            } else {
-                hitPoints -= damage;
-            }
-        }
+		Destroy (gameObject, 10f);
+	}
 
-        healthBar.fillAmount = hitPoints / totalHitPoints;
-    }
+	void SetState (AI_STATE nextState)
+	{
+		switch (nextState) {
+		case AI_STATE.IDLE:
+			state = nextState;
+			break;
+		case AI_STATE.ATTACK:
+			state = nextState;
+			break;
+		case AI_STATE.DEAD:
+			Die ();
+			state = nextState;
+			break;
+		}
+	}
+
+	public void Damage (float damage)
+	{
+		if (hitPoints > 0f) {
+			if (hitPoints - damage <= 0f) {
+				hitPoints = 0f;
+				SetState (AI_STATE.DEAD);
+			} else {
+				hitPoints -= damage;
+			}
+		}
+
+		healthBar.fillAmount = hitPoints / totalHitPoints;
+	}
 }
